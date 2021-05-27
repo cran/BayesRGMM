@@ -3,7 +3,7 @@ useDynLib(BayesRGMM, .registration=TRUE)
 # Exported functions
 
 export(CorrMat.HSD, SimulatedDataGenerator)
-export(BayesRobustProbitSummary, BayesRobustProbit)
+export(BayesRobustProbitSummary, BayesRobustProbit, AR1.cor)
 
 
 # Imported functions

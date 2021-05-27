@@ -44,6 +44,7 @@
 #'} 
 #'
 #' @examples
+#' \dontrun{
 #' library(BayesRGMM)
 #' rm(list=ls(all=TRUE))
 #' Fixed.Effs = c(-0.2, -0.3, 0.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
@@ -76,7 +77,7 @@
 #' HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
 #' 	data=HSD.sim.data$sim.data, random = ~ 1, HS.model = ~IndTime1+IndTime2, subset = NULL, 
 #' 	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
-#' 
+#' } 
 
 BayesRobustProbit = function(fixed, data, random, subset=NULL, na.action='na.exclude', arma.order=NULL, 
 	                         HS.model=NULL, hyper.params = NULL, num.of.iter=20000)

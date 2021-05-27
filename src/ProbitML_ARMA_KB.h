@@ -57,7 +57,7 @@ private:
     cube X, Z; //TxPxN, TxQxN
     vec TimePointsAvailable, ARMA_Order;//group_indices,
     List Data, InitialValues, HyperPara, UpdatePara, TuningPara;
-    cube Sigma_samples, b_samples, omega_samples, phi_samples, psi_samples;
+    cube Sigma_samples, b_samples, phi_samples, psi_samples;
     mat beta_samples, nu_samples;
     double phi_tune, psi_tune;
     
@@ -79,13 +79,6 @@ private:
 public:
     ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order);
     
-    //void Update_ystar(int iter);
-    //void Update_b(int iter);
-    //void Update_nu(int iter);
-    //void Update_beta(int iter);
-    //void Update_omega(int iter);
-    //void Update_Sigma(int iter);
-    //void Update_delta(int iter);
     void Update_ystar_b_nu_beta_Sigma(int iter);
 
     void Update_phi(int iter);
@@ -95,9 +88,7 @@ public:
     
     void ParameterEstimation();
 
-    //mat CovARMA(int i, int tp, double phi, double psi);
     mat CovARMA(int tp, vec phi, vec psi);
-    mat SigmaB(int tp, vec phi, vec psi);
     mat Phi(int tp, vec psi);
     mat Psi(int tp, vec psi);
     

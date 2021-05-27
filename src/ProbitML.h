@@ -49,15 +49,13 @@ private:
     int Num_of_iterations, Num_of_Timepoints;
     int Num_of_obs, Num_of_covariates;
     int Num_of_RanEffs, Num_of_deltas;
-    mat Y, Y_star_sample, HSD_Cov=mat(); //TxN
+    mat Y, Y_star_sample; //TxN
     cube X, Z, U; //TxPxN, TxQxN, TxTx(a*N)
     field<cube> UU; //TxTxNxa
-    //field <cube> W; //NxTxTxa
-    int HP_Model;
     vec TimePointsAvailable;//group_indices,
     List Data, InitialValues, HyperPara, UpdatePara, TuningPara;
-    cube Sigma_samples, b_samples, omega_samples;
-    mat beta_samples, nu_samples, delta_samples, phi_samples, psi_samples;
+    cube Sigma_samples, b_samples;
+    mat beta_samples, nu_samples, delta_samples;
     
     mat Sigma_mean, b_mean;
     vec beta_mean, nu_mean, delta_mean;
@@ -77,24 +75,16 @@ private:
 public:
     ProbitMLModelSelection(int iNum_of_iterations, List list_Data, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara);
     
-    void Update_ystar(int iter);
-    void Update_b(int iter);
+
     void Update_nu(int iter);
-    void Update_beta(int iter);
-    void Update_omega(int iter);
+
     void Update_Sigma(int iter);
     void Update_delta(int iter);
     void Update_ystar_b_beta_Sigma(int iter);
-    void Update_phi(int iter);
     
     void ParameterEstimation();
     
-    mat Ri(int i, int tp, vec delta);
     mat Ri_Version2(int i, int tp, vec delta);
-    mat Ri_Unconstraint(int i, int tp, mat omega_mat);
-    mat Sigma_b(int iter, mat omega);
-    
-    mat CovARMA(int i, int tp, double phi, double psi, vec delta); 
     
     SEXP MCMC_Procedure();
 };

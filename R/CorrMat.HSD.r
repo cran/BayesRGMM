@@ -12,7 +12,8 @@
 #' @references{
 #'   \insertRef{Zhang:etal:2015}{BayesRGMM} 
 #'} 
-#'
+#' @examples
+#' \dontrun{
 #' library(BayesRGMM)
 #' rm(list=ls(all=TRUE))
 #' T = 5 #time points
@@ -20,7 +21,7 @@
 #' a = length(HSD.para)
 #' w = array(runif(T*T*a), c(T, T, a)) #design matrix in HSD model
 #' signif(CorrMat.HSD(w, HSD.para), 4)
-
+#' }
 
 CorrMat.HSD = function(w, delta)
 {

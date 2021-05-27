@@ -54,7 +54,7 @@ BayesProbitARMA = function(fixed, data, random, subset, na.action, arma.order, h
 
     TimePointsAvailable = as.vector(table(id))
 
-    y = matrix(0, T, N)
+    y = matrix(NA, T, N)
     x = array(0, c(T, p, N)) #intercept,
     z = array(0, c(T, length(random.eff), N)) #intercept,
 
@@ -94,8 +94,8 @@ BayesProbitARMA = function(fixed, data, random, subset, na.action, arma.order, h
 
     y.star.ini = matrix(0, T, N)
     if(UpdateYstar){
-        y.star.ini[y==1] = rtnorm(sum(y==1), lower=0, upper=Inf)
-        y.star.ini[y==0] = rtnorm(sum(y==0), lower=-Inf, upper=0)
+        y.star.ini[y%in%1] = rtnorm(sum(y%in%1), lower=0, upper=Inf)
+        y.star.ini[y%in%0] = rtnorm(sum(y%in%0), lower=-Inf, upper=0)
     }
 
     b.ini = NULL

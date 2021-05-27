@@ -34,10 +34,7 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
     psi_tune = as<double>(TuningPara["TuningPsi"]);
     
     ARMA_Order = vARMA_Order;
-    
-    //Rcout << "ARMA order = " << ARMA_Order << endl;
-    
-    //Rcout<< "Read Data" << endl;
+
     Y = as<mat>(Data["Y"]);
     X = as<cube>(Data["X"]);
     Z = as<cube>(Data["Z"]);
@@ -50,7 +47,6 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
     Num_of_RanEffs = Z.n_cols;
     Num_of_covariates = X.n_cols;
     
-    //Rcout << "Num_of_RanEffs = " << Num_of_RanEffs << endl;
     
     updateystar = as<bool>(UpdatePara["UpdateYstar"]);
     updateb = as<bool>(UpdatePara["UpdateRandomEffect"]);
@@ -61,55 +57,63 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
     updatepsi = as<bool>(UpdatePara["UpdatePsi"]);
     
     SinglePhiPsi = as<bool>(UpdatePara["SinglePhiPsi"]);
-    //Unconstraint = as<bool>(UpdatePara["Unconstraint"]);
-    //updateomega = as<bool>(UpdatePara["UpdateOmega"]);
-    //SIMPLE = as<bool>(UpdatePara["SIMPLE"]);
 
     
     b_samples.set_size(Num_of_RanEffs, Num_of_obs, Num_of_iterations);
+    b_samples.zeros();
     nu_samples.set_size(Num_of_obs, Num_of_iterations);
+    nu_samples.zeros();
     beta_samples.set_size(Num_of_covariates,Num_of_iterations);
+    beta_samples.zeros();
     Sigma_samples.set_size(Num_of_RanEffs, Num_of_RanEffs, Num_of_iterations);
+    Sigma_samples.zeros();
     
-    phi_samples.set_size(ARMA_Order(0), Num_of_obs, Num_of_iterations);
-    psi_samples.set_size(ARMA_Order(1), Num_of_obs, Num_of_iterations);
+    phi_samples.set_size(1, Num_of_obs, Num_of_iterations);
+    phi_samples.zeros();
+    psi_samples.set_size(1, Num_of_obs, Num_of_iterations);
+    psi_samples.zeros();
     
-    //phi_samples.zeros();
-    //psi_samples.zeros();
+    phi_mean.set_size(1, Num_of_obs);
+    phi_mean.zeros();
+    psi_mean.set_size(1, Num_of_obs);
+    psi_mean.zeros();
     
-    omega_samples.set_size(Num_of_Timepoints, Num_of_Timepoints, Num_of_iterations);
-    b_mean.set_size(Num_of_RanEffs, Num_of_obs);
-    nu_mean.set_size(Num_of_obs);
-    beta_mean.set_size(Num_of_covariates);
-    Sigma_mean.set_size(Num_of_RanEffs, Num_of_RanEffs);
-    
-    phi_mean.set_size(ARMA_Order(0), Num_of_obs);
-    psi_mean.set_size(ARMA_Order(1), Num_of_obs);
+    if(ARMA_Order(0)>0){
+        phi_samples.set_size(ARMA_Order(0), Num_of_obs, Num_of_iterations);
+        phi_samples.zeros();
+        phi_samples.slice(0) = as<mat>(InitialValues["phi"]);
+        phi_mean.set_size(ARMA_Order(0), Num_of_obs);
+        phi_mean.zeros();
 
-    //omega_samples.set_size(Num_of_RanEffs, Num_of_RanEffs, Num_of_iterations);
+    }
+    if(ARMA_Order(1)>0){
+        psi_samples.set_size(ARMA_Order(1), Num_of_obs, Num_of_iterations);
+        psi_samples.zeros();
+        psi_samples.slice(0) = as<mat>(InitialValues["psi"]);
+        psi_mean.set_size(ARMA_Order(1), Num_of_obs);
+        psi_mean.zeros();
+    }
+
+
+    b_mean.set_size(Num_of_RanEffs, Num_of_obs);
+    b_mean.zeros();
+    nu_mean.set_size(Num_of_obs);
+    nu_mean.zeros();
+    beta_mean.set_size(Num_of_covariates);
+    beta_mean.zeros();
+    Sigma_mean.set_size(Num_of_RanEffs, Num_of_RanEffs);
+    Sigma_mean.zeros();
     
-    //Rcout<< "Initial Values Y" << endl;
-    //Rcout << "size(Y)" << size(Y) << endl;
-    //Y_star_sample.set_size(size(Y));
-    //Y_star_sample.zeros();
-    //Rcout << "Y_star = " << Y_star_sample.n_rows << "\t" << Y_star_sample.n_cols << endl;
-    //Rcout<< "Initial Values y.star" << endl;
+
+
     Y_star_sample = as<mat>(InitialValues["y.star"]);
 
-    //Rcout<< Y_star_sample.submat(0, 0, 4, 4) << endl;
-    //Rcout<< "Initial Values b" << endl;
+
     b_samples.slice(0) = as<mat>(InitialValues["b"]);
-    //Rcout<< "Initial Values nu" << endl;
     nu_samples.col(0) = as<vec>(InitialValues["nu"]);
-    //Rcout<< "Initial Values beta" << endl;
     beta_samples.col(0) = as<vec>(InitialValues["beta"]);
-    //Rcout<< "Initial Values Sigma" << endl;
     Sigma_samples.slice(0) = as<mat>(InitialValues["Sigma"]);
-    
-    //Rcout<< "Initial Values phi" << endl;
-    phi_samples.slice(0) = as<mat>(InitialValues["phi"]);
-    //Rcout<< "Initial Values psi" << endl;
-    psi_samples.slice(0) = as<mat>(InitialValues["psi"]);
+
 
     
 
@@ -123,57 +127,14 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
     
     Ib_diag.eye(Num_of_RanEffs, Num_of_RanEffs);
 
-    
-    //vec v = { -1, -2, 1, 3}, del = {-0.5, -0.3};
-    //vec v_lower = {datum::inf, datum::inf, 0, 0}, v_upper= {0, 0, -datum::inf, -datum::inf};
-    //Rcout << rtmvnorm_gibbs_KJLEE(1, v, Ri(1, 4, del), v_lower, v_upper, 0, zeros<vec>(4), 1) << endl;
-
     acc_phi_rate = 0.;
     acc_psi_rate = 0.;
 }
 
 
-/*
-mat ProbitMLModelSelectionARMA::CovARMA(int i, int tp, double phi, double psi)
-{
-    //Rcout << "ARMA" << endl;
-    mat Phi = eye(tp, tp);
-    mat Psi = eye(tp, tp);
-    mat CovARMA_tmp;
-    for(int i=0; i< (tp-1); i++){
-        Phi(i+1, i) = -phi;
-        Psi(i+1, i) = psi;
-    }
-
-        //Rcout << "Phi = " << endl << Phi << endl;
-        //Rcout << "Psi = " << endl << Psi << endl;
-
-    
-    CovARMA_tmp = Phi.i()* Psi* Psi.t()*(Phi.t().i());
-    return CovARMA_tmp;
-}
-
 
 mat ProbitMLModelSelectionARMAKB::CovARMA(int tp, vec phi, vec psi)
 {
-    
-    mat Phi = eye(tp, tp);
-    mat Psi = eye(tp, tp);
-    mat CovARMA_tmp;
-    for(int t=1; t<tp; t++){
-        for(int j=(t-1); (t-j)<=ARMA_Order(0) && j>=0; j--)
-            Phi(t, j) = -phi(t-j-1);
-        for(int j=(t-1); (t-j)<=ARMA_Order(1) && j>=0; j--)
-            Psi(t, j) = psi(t-j-1);
-    }
-    
-    CovARMA_tmp = (Psi.t().i())*Phi.i()*Psi;
-    return CovARMA_tmp;
-}
-*/
-mat ProbitMLModelSelectionARMAKB::CovARMA(int tp, vec phi, vec psi)
-{
-    
     mat Phi = eye(tp, tp);
     mat Psi = eye(tp, tp);
     mat CovARMA_tmp;
@@ -187,6 +148,8 @@ mat ProbitMLModelSelectionARMAKB::CovARMA(int tp, vec phi, vec psi)
     CovARMA_tmp = Phi.i()* Psi* Psi.t()*(Phi.t().i());
     return CovARMA_tmp;
 }
+
+
 
 mat ProbitMLModelSelectionARMAKB::Phi(int tp, vec phi)
 {
@@ -225,29 +188,17 @@ void ProbitMLModelSelectionARMAKB::Update_ystar_b_nu_beta_Sigma(int iter)
     mat Sigma_tmp_b = zeros<mat>(Num_of_RanEffs, Num_of_RanEffs);
     mat Sigma_tmp = zeros<mat>(Num_of_RanEffs, Num_of_RanEffs);
 
-    //vec v = { -1, -2, 1, 3};
-    //vec v_lower = {datum::inf, datum::inf, 0, 0}, v_upper= {0, 0, -datum::inf, -datum::inf};
-    //rtmvnorm_gibbs_KJLEE(1, v, Ri(1, 4, delta_samples.col(iter)), v_lower, v_upper, 100, zeros<vec>(4), 5);
-
     int tp;
-    //vec y_star_tmp;
     vec lower, upper;
     mat X_tmp, Z_tmp, Phi_tmp, Phi_tmp_inv, Psi_tmp, Psi_tmp_inv;
-    //vec  init_state;
     vec b_vec;
     double beta_tmp;
-    //double sigma_tmp, mu_tmp_1;
     double alpha_tmp = 0.5*(v_gamma + Num_of_RanEffs);
-    
-    //Rcout << "iter = " << iter << endl;
+
     for(int i=0; i<Num_of_obs; i++){
-        //Rcout << "iter = " << iter << "\t i = " << i << endl;
-        //Rcout << "============ Check 1 ============" << endl;
         tp = TimePointsAvailable(i);
-        //Rcout << "============ Check 2 ============" << endl;
         X_tmp = X(span(0, tp-1), span(0, Num_of_covariates-1), span(i));
         Z_tmp = (Z.slice(i).rows(0, tp-1));
-        //Rcout << "============ Check 3 ============" << endl;
         if(SinglePhiPsi){
             Ri_tmp = CovARMA(tp, phi_samples.slice(iter).col(0), psi_samples.slice(iter).col(0));
             if(updatephi){
@@ -291,13 +242,6 @@ void ProbitMLModelSelectionARMAKB::Update_ystar_b_nu_beta_Sigma(int iter)
         if(updateystar){
             mu_tmp_ystar = X_tmp*beta_samples.col(iter) +  Phi_tmp_inv*Z_tmp*b_samples.slice(iter).col(i);
 
-                //CovARMA(tp, phi_samples.slice(iter).col(i), psi_samples.slice(iter).col(i));
-            
-            //Rcout << "Omega = " << Omegai_tmp << endl;
-            //Ri_inv = inv_sympd(Ri_tmp);
-            //Rcout << "Omega_inv " << Omegai_inv << endl;
-            
-            //Rcout << "============ Check 4 ============" << endl;
             lower.set_size(tp);
             upper.set_size(tp);
             lower.elem(find(Y(span(0, tp-1), i)>0)).zeros();
@@ -307,8 +251,6 @@ void ProbitMLModelSelectionARMAKB::Update_ystar_b_nu_beta_Sigma(int iter)
             upper.elem(find(Y(span(0, tp-1), i)==0)).zeros();
             upper.elem(find(Y(span(0, tp-1), i)>0)).ones();
             upper.elem(find(Y(span(0, tp-1), i)>0)) *= datum::inf;
-            //if(i==368)
-                //Rcout << "iter = " << iter << "\t Y = " << Y.col(i).t() << "\t lower = " << lower.t() << "\t upper " << upper.t() << endl;
             
             mu_tmp_ystar.elem( find( ( (Y(span(0, tp-1), i)-1) % mu_tmp_ystar) < 0 )).zeros();
             mu_tmp_ystar.elem( find( ( (Y(span(0, tp-1), i) ) % mu_tmp_ystar) < 0 )).zeros();
@@ -334,26 +276,7 @@ void ProbitMLModelSelectionARMAKB::Update_ystar_b_nu_beta_Sigma(int iter)
             }
                 
         }
-        //Y_star_sample(span(0, tp-1), i) = rtmvnorm_gibbs_KJLEE(1, mu_tmp_ystar, Omegai_tmp, lower, upper, 100, zeros<vec>(tp), 5).t();
-        
-        //if(iter==11)
-            //Rcout << "Y_star_sample = " << Y_star_sample(span(0, tp-1), i) << endl;
-        /*
-        if(i==21){
-            Rcout << "mu_tmp_ystar = " << mu_tmp_ystar.t() << endl;
-            Rcout << "Y.star = " << Y_star_sample(span(0, tp-1), i).t() << endl;
-            Rcout << " Psi_tmp = " << endl << Psi_tmp << endl;
-            Rcout << " Psi_tmp_inv = " << endl << Psi_tmp_inv << endl;
-        }
-        */
-        //Rcout << "Sigma_tmp_b" <<endl;
-        
-        //Phi_tmp = Phi(tp,phi_samples.slice(iter).col(i));
-       
-        
-        //Omegai_tmp = Z_tmp.t()*Phi_tmp_inv.t()*Phi_tmp_inv*Psi_tmp;
-        
-        //Rcout << "============ Check 5 ============" << endl;
+ 
         if(updateb){
             Sigma_tmp_b = (Z_tmp.t()*Psi_tmp_inv.t()*Psi_tmp_inv*Phi_tmp*Z_tmp + nu_samples(i, iter)*Sigma_samples.slice(iter).i());
             //Rcout << "============ Check 5.1 ============" << endl;
@@ -389,32 +312,16 @@ void ProbitMLModelSelectionARMAKB::Update_ystar_b_nu_beta_Sigma(int iter)
         }
         else
             nu_samples(i, iter+1) = nu_samples(i, iter);
-        //nu_samples(i, iter+1) = randg( 1, distr_param(1., 1.))(0);
-        
-        //Rcout << "============ Check 8.1 ============" << endl;
+
         Ri_tmp_inv = inv_sympd(Ri_tmp);
-        //Rcout << "============ Check 8.2 ============" << endl;
+
         Sigma_tmp_beta += (X_tmp.t()*Ri_tmp_inv*X_tmp);
-        
-        //Rcout << "Sigma_tmp =" << Sigma_tmp << endl;
-        //yi_star =  y_star_samples.slice(iter).col(i);
-        //res = Y_star_sample((span(0, tp-1), i))- (Z.slice(i))*b_samples.slice(iter).col(i);
-        //Rcout << "============ Check 9 ============" << endl;
         res_beta = Y_star_sample(span(0, tp-1), i)- Phi_tmp_inv*Z_tmp*b_vec;
-        
-        //Rcout << "i = " << i << "\t res_beta = " << res_beta << endl;
         mu_tmp_beta += X_tmp.t()*Ri_tmp_inv*res_beta;
-        //Rcout << "============ Check 10 ============" << endl;
-        //b_vec = b_samples.slice(iter+1).col(i);
-        //if(i==368)
-            //Rcout << "i=" <<  i << "\t" << "b_vec = "<< b_samples.slice(iter+1).col(i)<< endl;
         Sigma_tmp += nu_samples(i, iter+1)*(b_vec*b_vec.t());
         
       }
-    
-    //Rcout << "Sigma_tmp_beta = " << sigma2_beta << endl;
-    //Rcout << "mu_tmp_beta = " << mu_tmp_beta << endl;
-    //Rcout << "============ Check 11 ============" << endl;
+
     if(updatebeta){
         Sigma_tmp_beta.diag() += 1./sigma2_beta;
         Sigma_tmp_beta = inv_sympd(Sigma_tmp_beta);
@@ -424,14 +331,11 @@ void ProbitMLModelSelectionARMAKB::Update_ystar_b_nu_beta_Sigma(int iter)
     }
     else
         beta_samples.col(iter+1) = beta_samples.col(iter);
-    //Rcout << "Sigma_tmp = " << Sigma_tmp << endl;
     
     Sigma_tmp = (Sigma_tmp + Lambda);
-    //Rcout << "============ Check 12 ============" << endl;
-    //Rcout << "Sigma_tmp_inv = " << Sigma_tmp << " Num_of_obs + Vb =" << Num_of_obs + Vb << endl;
+
     if(updateSigma)
-        Sigma_samples.slice(iter+1) =iwishrnd( Sigma_tmp, (Num_of_obs + Vb)); //1./randg( 1, distr_param(gamma_shape, gamma_scale) );// //riwish(df,
-    //Rcout << "============ Check 13 ============" << endl;
+        Sigma_samples.slice(iter+1) =iwishrnd( Sigma_tmp, (Num_of_obs + Vb));
     else
         Sigma_samples.slice(iter+1) = Sigma_samples.slice(iter);
 }
@@ -567,23 +471,6 @@ void ProbitMLModelSelectionARMAKB::Update_single_phi(int iter)
     int tp;
     mat Cov_tmp_inv;
     
-    /*
-    if(ARMA_Order(0)==1){
-        do{
-            phi_cand = mvnrnd(phi_samples.slice(iter).col(0), phi_tune*eye(ARMA_Order(0),ARMA_Order(0)));
-            //phi_cand =  phi_samples(i, iter)+0.01*(2*randu()-1);
-        }
-        while(abs(as_scalar(phi_cand))>1);
-    }
-    else{
-        do{
-            //phi_cand =  phi_samples(i, iter)+0.01*(2*randu()-1);
-            phi_cand = mvnrnd(phi_samples.slice(iter).col(0), phi_tune*eye(ARMA_Order(0),ARMA_Order(0)));
-            //bool_phi = (sum(phi_cand)<1) && (as_scalar(diff(phi_cand)<1)) && (abs(phi_cand(1))<1);
-        }
-        while((sum(phi_cand)>1) || (as_scalar(diff(phi_cand)>1)) || (abs(phi_cand(1))>1));
-    }
-    */
     phi_cand = mvnrnd(phi_samples.slice(iter).col(0), phi_tune*eye(ARMA_Order(0),ARMA_Order(0)));
     
     for(int i=0; i<Num_of_obs; i++){
@@ -722,15 +609,7 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
     phi_mean = mean(phi_samples, 2);
     psi_mean = mean(psi_samples, 2);
     
-    //Rcout << "b_mean = " << endl << b_mean << endl;
-    //Rcout << "beta_mean = " << endl << beta_mean << endl;
-    //Rcout << "phi_mean = " << phi_mean.col(0) << "phi_true = " << phi_samples.slice(0).col(0)<< endl;
-    //Rcout << "psi_mean = " << psi_mean.col(0) << "psi_true = " << psi_samples.slice(0).col(0)<< endl;
-    //Rcout << "Sigma_mean = " << Sigma_mean << endl;
-    
-    //Rcout << size(b_mean) << endl;
-    //rowvec X_tmp, Z_tmp;
-    
+
     rowvec X_tmp, Z_tmp;
     //vec mu_tmp;
     double pit, CPO_tmp, ESS=0, GP=0, ESS_GP_tmp, RJ1, RJ2;
@@ -738,7 +617,7 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
     
     mat Djt(Num_of_Timepoints, Num_of_covariates, fill::zeros);
     mat Omega_I(Num_of_covariates, Num_of_covariates, fill::zeros), M_LZ(Num_of_covariates, Num_of_covariates, fill::zeros);
-    vec mu_it(Num_of_Timepoints), p_it(Num_of_Timepoints);
+    vec mu_it(Num_of_Timepoints, fill::zeros), p_it(Num_of_Timepoints, fill::zeros);
     mat A_sqrt, Cov_Y, V, V_inv, Omega_I_inv, V_LZ, Gamma_RJ, Djt_sub;
 
     int tp;
@@ -767,21 +646,21 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
             for(int j=0; j<Num_of_covariates; j++)
                 Djt(t, j) = X(t,j,i)/normpdf(Rf_pnorm5(mu_it(t), 0., 1., 1, 0));
         }
-        //Rcout << "============== 1 ============"<<endl;
+
         Djt_sub = Djt.head_rows(tp);
-        //Rcout << "============== 2 ============"<<endl;
+
         Cov_Y = (Y(span(0, tp-1), i)-p_it.head(tp))*(Y(span(0, tp-1), i)-p_it.head(tp)).t();
-        //Rcout << "============== 3 ============" << endl;
+
         A_sqrt = diagmat(sqrt(p_it.head(tp)));
         V = A_sqrt*A_sqrt;
-        //Rcout << "============== 4 ============"<<endl;
+
         V_inv = V.i();
         Omega_I += Djt_sub.t()*V_inv*Djt_sub;
-        //Rcout << "============== 5 ============"<<endl;
+
         M_LZ += Djt_sub.t()*V_inv*Cov_Y*V_inv*Djt_sub;
-        //Rcout << "============== 6 ============"<<endl;
+
         ESS_GP_tmp = as_scalar((Y(span(0, tp-1), i)-mu_it.head(tp)).t()*V_inv*(Y(span(0, tp-1), i)-mu_it.head(tp)));
-        //Rcout << "============== 7 ============"<<endl;
+
         ESS += ESS_GP_tmp;
         GP += -0.5*ESS_GP_tmp + log(det(V));
     }
@@ -793,34 +672,14 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
     RJ2 = accu((diagvec(Gamma_RJ*Gamma_RJ)))/Num_of_covariates;
 
     RJ_R = sqrt((1-RJ1)*(1-RJ1)+(1-RJ2)*(1-RJ2));
-    //SC = ESS/(N-P-a
-    //GP = -0.5*GP
 
     CIC = trace(Omega_I*V_LZ);
-    //Rcout << "RJ_R = " << RJ_R << "\tCIC = " << CIC << endl;
-    //cat("RJ.R = ", RJ.R, "\t", "SC = ", SC, "\n")
-
+ 
     
     for(int i=0; i<Num_of_obs; i++){
-        //Rcout << "i=" << i << endl;
-        //tp = TimePointsAvailable(i);
-        //Rcout << "tp = " << tp << endl;
-        //tp = TimePointsAvailable(i);
-        //X_tmp = X.slice(i).rows(0, tp-1);  //X(span(0, tp-1), span(0, Num_of_covariates-1), span(i));
-        //Z_tmp = Z.slice(i).rows(0, tp-1);
-        //mu_tmp = X_tmp*beta_mean+Z_tmp*b_mean.col(i);
-        //Ri_tmp = Ri(i, tp, delta_mean);
-
         for(int t=0; t<TimePointsAvailable(i); t++){
-            X_tmp = X.slice(i).row(t); //(span(t), span(0, Num_of_covariates-1)), span(i));
+            X_tmp = X.slice(i).row(t);
             Z_tmp = Z.slice(i).row(t);
-            //mu_tmp = X_tmp*beta_mean+Z_tmp*b_mean.col(i);
-            //Rcout << X_tmp << endl;
-            //Rcout << Z_tmp << endl;
-            //Rcout << "beta = " << endl << beta_mean << endl;
-            //Rcout << "b = " << endl << b_mean.col(i) << endl;
-            //cond_mu = mu_tmp(t) + negSubRow(Ri_tmp.row(t)) * inv_sympd( sub1(Ri_tmp, t) ) * ()
-            
             for(int iter = Num_of_iterations/2; iter<Num_of_iterations; iter++){
                 pit = normcdf( as_scalar( X_tmp*beta_samples.col(iter) + Z_tmp*b_samples.slice(iter).col(i) ), 0., 1.);
                 if(pit == 1 && Y(t, i) == 1){
@@ -829,14 +688,9 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
                 }
                 else if(pit == 0 && Y(t, i) == 0){
                     DIC += 0.;
-                //else if(pit == 0 && Y(t, i) == 1)
-                //    Likelihood += 0.;
-                //else if(pit == 1 && Y(t, i) == 0)
-                //    Likelihood += 0.;
                     CPO_tmp = 0.;
                 }
                 else{
-                    //Likelihood *= pow(pit, Y(t, i))*pow( (1-pit), (1-Y(t, i)) );
                     CPO_tmp = Y(t, i)*log(pit) + (1-Y(t, i))*log(1-pit);
                     DIC += CPO_tmp;
                     
@@ -848,18 +702,12 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
             
             
             pit = normcdf(as_scalar( X_tmp*beta_mean + Z_tmp*b_mean.col(i) ), 0., 1.);
-            //Rcout << "i=" << i << ", t=" << t << "\tpit=" << pit << endl;
             
             if(pit == 1 && Y(t, i) == 1)
                 logL += 0.;
             else if(pit == 0 && Y(t, i) == 0)
                 logL += 0.;
-            //else if(pit == 0 && Y(t, i) == 1)
-            //    Likelihood += 0.;
-            //else if(pit == 1 && Y(t, i) == 0)
-            //    Likelihood += 0.;
             else
-                //Likelihood *= pow(pit, Y(t, i))*pow( (1-pit), (1-Y(t, i)) );
                 logL += Y(t, i)*log(pit) + (1-Y(t, i))*log(1-pit);
         }
     }
@@ -882,13 +730,6 @@ void ProbitMLModelSelectionARMAKB::ParameterEstimation()
 SEXP ProbitMLModelSelectionARMAKB::MCMC_Procedure()
 {
     Rcout << "Start running MCMC procedure:"<< endl;
-    //X1 <- rtmvnorm(n=20000, mean = c(-1, -2, 1, 3), sigma=C, lower=c(-Inf, -Inf, 0, 0), upper=c(0, 0, Inf, Inf), algorithm="gibbs", burn.in.samples=100, thinning=5)
-    //cor(X1)
-    
-    //Y_star_sample(span(0, tp-1), i) = rtmvnorm_gibbs(1, mu_tmp, Ri_tmp, lower, upper, Y_star_sample.col(i) ).t();
-
-    //Rcout << cor(rtmvnorm_gibbs(2000, vec , Ri_tmp, lower, upper, Y_star_sample.col(i) ))
-    
     
     List PosteriorSamples;
     List PosteriorEstimates;
@@ -901,43 +742,8 @@ SEXP ProbitMLModelSelectionARMAKB::MCMC_Procedure()
     
     
     while(iter < Num_of_iterations-1){
-        //if(updateystar & updateb & updatenu & updatebeta & updateSigma)
             Update_ystar_b_nu_beta_Sigma(iter);
-        //else{
-            
-            //b_samples.slice(iter+1) = b_samples.slice(iter);
-            //beta_samples.col(iter+1)= beta_samples.col(iter);
-            //nu_samples.col(iter+1) = nu_samples.col(iter);
-            //beta_samples.col(iter+1) = beta_samples.col(iter);
-            //Sigma_samples.slice(iter+1) = Sigma_samples.slice(iter);
-        //}
 
-        //if(updatenu)
-            //Update_nu(iter);
-        //else
-        //    nu_samples.col(iter+1) = nu_samples.col(iter);
-
-        //if(updatebeta)
-          //  Update_beta(iter);
-        //else
-            //beta_samples.col(iter+1) = beta_samples.col(iter);
-
-//        if(SIMPLE){
-//            if(updateomega)
-//                Update_omega(iter);
-//            else{
-//                omega_samples.slice(iter+1) = omega_samples.slice(iter);
-//                Sigma_samples.slice(iter+1) = Sigma_samples.slice(iter);
-//            }
-//        }
-//        else{
-        
-//        }
-        //if(updatedelta)
-        //    Update_delta(iter);
-        //else
-        //    delta_samples.col(iter+1) = delta_samples.col(iter);
-        
         if(SinglePhiPsi){
             if(updatephi)
                 Update_single_phi(iter);
@@ -961,10 +767,6 @@ SEXP ProbitMLModelSelectionARMAKB::MCMC_Procedure()
                 psi_samples.slice(iter+1) = psi_samples.slice(iter);
         }
         
-        //iter++;
-        //if((iter+1)%100==0)
-        //    Rcout << iter+1 << endl;
-        //Rcout<<"\t"<< round((iter+1.)/Num_of_iterations*100)<<" %"<<'\r';
         
         percent = (100 *iter) / (Num_of_iterations-2) ;
         iter++;
@@ -994,17 +796,24 @@ SEXP ProbitMLModelSelectionARMAKB::MCMC_Procedure()
     PosteriorSamples["nu.samples"] = nu_samples;
     PosteriorSamples["beta.samples"] = beta_samples;
     PosteriorSamples["Sigma.samples"] = Sigma_samples;
-    //PosteriorSamples["delta.samples"] = delta_samples;
-    PosteriorSamples["phi.samples"] = phi_samples;
-    PosteriorSamples["psi.samples"] = psi_samples;
+    
+    
  
     PosteriorEstimates["beta.mean"] = beta_mean;
     PosteriorEstimates["nu.mean"] = nu_mean;
-    //PosteriorEstimates["delta.mean"] = delta_mean;
     PosteriorEstimates["b.mean"] = b_mean;
     PosteriorEstimates["Sigma.mean"] = Sigma_mean;
-    PosteriorEstimates["phi.mean"] = phi_mean;
-    PosteriorEstimates["psi.mean"] = psi_mean;
+    if(ARMA_Order(0)>0){
+        PosteriorSamples["phi.samples"] = phi_samples;
+        PosteriorEstimates["phi.mean"] = phi_mean;
+        MH_AcceptanceRates["Acceptance.rate.for.phi"] = acc_phi_rate/Num_of_iterations;
+    }
+    
+    if(ARMA_Order(1)>0){
+        PosteriorSamples["psi.samples"] = psi_samples;
+        PosteriorEstimates["psi.mean"] = psi_mean;
+        MH_AcceptanceRates["Acceptance.rate.for.psi"] = acc_psi_rate/Num_of_iterations;
+    }
 
 
     PosteriorEstimates["AIC"] = AIC;
@@ -1018,12 +827,12 @@ SEXP ProbitMLModelSelectionARMAKB::MCMC_Procedure()
     PosteriorEstimates["MPL"] = MPL;
     PosteriorEstimates["ACC"] = ACC/accu(TimePointsAvailable);
 
-    MH_AcceptanceRates["Acceptance.rate.for.phi"] = acc_phi_rate/Num_of_iterations;
-    MH_AcceptanceRates["Acceptance.rate.for.psi"] = acc_psi_rate/Num_of_iterations;
+
     
     Posterior["PosteriorEstimates"] = PosteriorEstimates;
     Posterior["PosteriorSamples"] = PosteriorSamples;
-    Posterior["MH_AcceptanceRates"] = MH_AcceptanceRates;
+    if(accu(ARMA_Order)>0)
+        Posterior["MH_AcceptanceRates"] = MH_AcceptanceRates;
  
     //Rcout << endl << "=======================================" << endl;
     //Rcout << "acceptance rate for phi= " << acc_phi_rate/Num_of_iterations << endl;

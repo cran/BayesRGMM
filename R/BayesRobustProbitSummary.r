@@ -9,6 +9,7 @@
 #' @return a list of posterior summary statistics and corresponding model information 
 #'
 #' @examples
+#' \dontrun{
 #' library(BayesRGMM)
 #' rm(list=ls(all=TRUE))
 #' Fixed.Effs = c(-0.2, -0.3, 0.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
@@ -43,19 +44,17 @@
 #' 	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
 #' 
 #' BayesRobustProbitSummary(HSD.output)
-
+#' }
 
 
 BayesRobustProbitSummary = function(object, digits = max(1L, getOption("digits") - 4L))
 {
 	
-	if(object$call[1]!="BayesProbitHSD()" & object$call[1]!="BayesProbitARMA()" & object$call[1]!="BayesProbitARMAKB()")
+	if(object$call[1]!="BayesProbitHSD()" & object$call[1]!="BayesProbitARMA()")
 		stop("Please input the correct object!!")
 	if(object$call[1] == "BayesProbitHSD()")
 		output = BayesProbitHSD.Summary(object, digits = digits)
 	if(object$call[1] == "BayesProbitARMA()")
 		output = BayesProbitARMA.Summary(object, digits = digits)
-	if(object$call[1] == "BayesProbitARMAKB()")
-		output = BayesProbitARMA.Summary(object, digits = digits)
-	invisible(output)
+	output
 }

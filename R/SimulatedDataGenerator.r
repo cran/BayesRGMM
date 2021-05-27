@@ -20,6 +20,7 @@
 #'   \item{HSD.para}{The given values of parameters in ARMA model.}
 #' }
 #' @examples
+#' \dontrun{
 #' library(BayesRGMM)
 #' rm(list=ls(all=TRUE))
 #' Fixed.Effs = c(-0.2, -0.3, 0.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
@@ -55,7 +56,7 @@
 #' 	Fixed.Effs = Fixed.Effs, Random.Effs = list(Sigma = 0.5*diag(1), df=3), 
 #' 	Cor.in.DesignMat = 0., list(Missing.Mechanism = 2, RegCoefs = c(-1.5, 1.2)), 
 #' 	Cor.Str = "ARMA", ARMA.para=list(AR.para = 0.8))
-
+#' }
 
 
 
@@ -128,7 +129,7 @@ SimulatedDataGenerator = function(Num.of.Obs, Num.of.TimePoints, Fixed.Effs, Ran
 		if(AR.order>0)
 			phi.true = matrix(rep(AR.para, N), AR.order, N)
 		if(MA.order>0)
-			psi.true = matrix(rep(MA.para, N), AR.order, N)
+			psi.true = matrix(rep(MA.para, N), MA.order, N)
 
 
 		ARMAorder = c(AR.order, MA.order)

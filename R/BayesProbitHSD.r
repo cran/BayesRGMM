@@ -52,6 +52,8 @@ BayesProbitHSD = function(fixed, data, random, subset, na.action, HS.model, hype
     if(fixed.eff.intercept.included)
         fixed.eff = c("(Intercept)", fixed.eff)
 
+    #cat("fixed.eff = ", fixed.eff, "\n")
+
     random.eff[random.eff=="1"] = "(Intercept)"
 
     #cat("random.eff = ", random.eff, "\n")
@@ -229,7 +231,7 @@ BayesProbitHSD = function(fixed, data, random, subset, na.action, HS.model, hype
 
     TimePointsAvailable = as.vector(table(id))
 
-    y = matrix(0, T, N)
+    y = matrix(NA, T, N)
     x = array(0, c(T, p, N)) #intercept,
     z = array(0, c(T, length(random.eff), N)) #intercept,
 
@@ -266,8 +268,8 @@ BayesProbitHSD = function(fixed, data, random, subset, na.action, HS.model, hype
 
     y.star.ini = matrix(0, T, N)
     if(UpdateYstar){
-        y.star.ini[y==1] = rtnorm(sum(y==1), lower=0, upper=Inf)
-        y.star.ini[y==0] = rtnorm(sum(y==0), lower=-Inf, upper=0)
+        y.star.ini[y%in%1] = rtnorm(sum(y%in%1), lower=0, upper=Inf)
+        y.star.ini[y%in%0] = rtnorm(sum(y%in%0), lower=-Inf, upper=0)
     }
 
 
@@ -317,9 +319,10 @@ BayesProbitHSD = function(fixed, data, random, subset, na.action, HS.model, hype
     cat("\nNumber of subjects:", N, "\n\n")
 
 
-    out <- list(Posterior.Samples = PosteriorSamplesHSD, Fixed.Effects.Names = fixed.eff, Random.Effects.Names = random.eff, 
-                Response = y, Fixed.Effects.Mat = x, Random.Effects.Mat = z, HS.model.Mat = uu, 
-                call = cl, Num.of.Iter = num.of.iter)
+    out <- list(Posterior.Samples = PosteriorSamplesHSD, Fixed.Effects.Names = fixed.eff, 
+                Random.Effects.Names = random.eff, 
+                Response = y, Fixed.Effects.Mat = x, Random.Effects.Mat = z, 
+                HS.model.Mat = uu, call = cl, Num.of.Iter = num.of.iter)
     
     #class(out)
     out 

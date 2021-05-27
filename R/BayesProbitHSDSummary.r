@@ -77,6 +77,6 @@ BayesProbitHSD.Summary = function(object, digits = max(1L, getOption("digits") -
     else
         HSD.result = list(beta.est.CI = beta.est.CI, delta.est.CI = delta.est.CI, model.info = model.info, 
             random.cov = random.cov)
-    invisible(HSD.result)
+    HSD.result
     #HSD.result
 }
