@@ -42,8 +42,8 @@ hyper.params = list(
         InvWishart.Lambda = diag(q) )
 
 HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
-	data=HSD.sim.data$sim.data, random = ~ 1, HS.model = ~IndTime1+IndTime2, subset = NULL, 
-	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
+	data=HSD.sim.data$sim.data, random = ~ 1, Robustness = TRUE, HS.model = ~IndTime1+IndTime2, 
+	subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
 
 original = options(digits = 4)
 Model.Estimation = BayesRobustProbitSummary(HSD.output)

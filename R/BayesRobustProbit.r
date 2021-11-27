@@ -13,6 +13,8 @@
 #' It requires an ``integer'' variable named by \samp{id} to denote the identifications of subjects. 
 #' @param random a one-sided linear formula object to describe random-effects with the terms separated by 
 #' \samp{+} or \samp{*} operators on the right of a \samp{~} operator.
+#' @param Robustness logical. If 'TRUE' the distribution of random effects is assumed to be t-distribution; 
+#' otherwise normal distribution. 
 #' @param na.action a function that indicates what should happen when the data contain NA’s. 
 #' The default action (\samp{na.omit}, inherited from the \samp{factory fresh} value of 
 #' \samp{getOption("na.action")}) strips any observations with any missing values in any variables.
@@ -75,11 +77,11 @@
 #'         InvWishart.Lambda = diag(q) )
 #' 
 #' HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
-#' 	data=HSD.sim.data$sim.data, random = ~ 1, HS.model = ~IndTime1+IndTime2, subset = NULL, 
-#' 	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
+#' 	data=HSD.sim.data$sim.data, random = ~ 1, Robustness=TRUE, HS.model = ~IndTime1+IndTime2, 
+#'  subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
 #' } 
 
-BayesRobustProbit = function(fixed, data, random, subset=NULL, na.action='na.exclude', arma.order=NULL, 
+BayesRobustProbit = function(fixed, data, random, Robustness=TRUE, subset=NULL, na.action='na.exclude', arma.order=NULL, 
 	                         HS.model=NULL, hyper.params = NULL, num.of.iter=20000)
 { 
 
@@ -91,11 +93,13 @@ BayesRobustProbit = function(fixed, data, random, subset=NULL, na.action='na.exc
 		stop("Please specify only one model for the correlation structure!!")
 
 	if(length(arma.order)>0)
-		output = do.call("BayesProbitARMA", list(fixed=fixed, data=data, random=random, subset=subset, 
-			na.action=na.action, arma.order=arma.order, hyper.params = hyper.params, num.of.iter=num.of.iter))
+		output = do.call("BayesProbitARMA", list(fixed=fixed, data=data, random=random, Robustness=Robustness, 
+			subset=subset, na.action=na.action, arma.order=arma.order, hyper.params = hyper.params, 
+			num.of.iter=num.of.iter))
 	if(length(HS.model)>0)
-		output = do.call("BayesProbitHSD", list(fixed=fixed, data=data, random=random, subset=subset, 
-			na.action=na.action, HS.model=HS.model, hyper.params = hyper.params, num.of.iter=num.of.iter))
+		output = do.call("BayesProbitHSD", list(fixed=fixed, data=data, random=random, Robustness=Robustness, 
+			subset=subset, na.action=na.action, HS.model=HS.model, hyper.params = hyper.params, 
+			num.of.iter=num.of.iter))
 		#output = BayesProbitHSD(fixed, data, random, HS.model, subset=NULL, na.action, num.of.iter)
 
 	output$call$data = deparse(substitute(data))

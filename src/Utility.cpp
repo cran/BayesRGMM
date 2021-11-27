@@ -3,24 +3,25 @@
 
 #include "ProbitML.h"
 #include "ProbitML_ARMA_KB.h"
+#include "CPREMs.h"
 //RNGScope scope;
 
 
 
 // [[Rcpp::export]]
-RcppExport SEXP ProbitMCMCHSD(SEXP i_Num_of_iterations, SEXP list_Data, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara)
+RcppExport SEXP ProbitMCMCHSD(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara)
 {
     List lData(list_Data);
     List lInitialValues(list_InitialValues);
     List lHyperPara(list_HyperPara);
     List lUpdatePara(list_UpdatePara);
     List lTuningPara(list_TuningPara);
-    
+    bool bRobustness = Rcpp::as<bool> (logic_Robust);
     List PosteriorSamples;
     
     int iNum_of_iterations = Rcpp::as<int> (i_Num_of_iterations);
     
-    ProbitMLModelSelection DoMLModelSelectionMCMC(iNum_of_iterations, lData, lInitialValues, lHyperPara, lUpdatePara, lTuningPara);
+    ProbitMLModelSelection DoMLModelSelectionMCMC(iNum_of_iterations, lData, bRobustness, lInitialValues, lHyperPara, lUpdatePara, lTuningPara);
     
     PosteriorSamples = DoMLModelSelectionMCMC.MCMC_Procedure();
     
@@ -31,13 +32,14 @@ RcppExport SEXP ProbitMCMCHSD(SEXP i_Num_of_iterations, SEXP list_Data, SEXP lis
 
 
 // [[Rcpp::export]]
-RcppExport SEXP ProbitMCMCARMAKB(SEXP i_Num_of_iterations, SEXP list_Data, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara, SEXP ARMA_Order)
+RcppExport SEXP ProbitMCMCARMAKB(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara, SEXP ARMA_Order)
 {
     List lData(list_Data);
     List lInitialValues(list_InitialValues);
     List lHyperPara(list_HyperPara);
     List lUpdatePara(list_UpdatePara);
     List lUpdateTuningPara(list_TuningPara);
+    bool bRobustness = Rcpp::as<bool> (logic_Robust);
     
     List PosteriorSamples;
     
@@ -45,9 +47,33 @@ RcppExport SEXP ProbitMCMCARMAKB(SEXP i_Num_of_iterations, SEXP list_Data, SEXP 
     
     vec vARMA_Order = as<vec>(ARMA_Order);
     
-    ProbitMLModelSelectionARMAKB DoMLModelSelectionMCMC(iNum_of_iterations, lData, lInitialValues, lHyperPara, lUpdatePara, lUpdateTuningPara, vARMA_Order);
+    ProbitMLModelSelectionARMAKB DoMLModelSelectionMCMC(iNum_of_iterations, lData, bRobustness, lInitialValues, lHyperPara, lUpdatePara, lUpdateTuningPara, vARMA_Order);
     
     PosteriorSamples = DoMLModelSelectionMCMC.MCMC_Procedure();
+    
+    //Rcout << "Check1" << endl;
+    return PosteriorSamples;
+    
+}
+
+
+// [[Rcpp::export]]
+RcppExport SEXP CumulativeProbitMCMC(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara)
+{
+    List lData(list_Data);
+    List lInitialValues(list_InitialValues);
+    List lHyperPara(list_HyperPara);
+    List lUpdatePara(list_UpdatePara);
+    List lTuningPara(list_TuningPara);
+    bool bRobustness = Rcpp::as<bool> (logic_Robust);
+    
+    List PosteriorSamples;
+    
+    int iNum_of_iterations = Rcpp::as<int> (i_Num_of_iterations);
+    
+    CumulativeProbitModel DoCumulativeProbitMCMC(iNum_of_iterations, lData, bRobustness, lInitialValues, lHyperPara, lUpdatePara, lTuningPara);
+    
+    PosteriorSamples = DoCumulativeProbitMCMC.MCMC_Procedure();
     
     //Rcout << "Check1" << endl;
     return PosteriorSamples;

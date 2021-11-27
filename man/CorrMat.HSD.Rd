@@ -20,18 +20,21 @@ and the angle parameters are referred to hypersphere (HS) parameters. In order t
 of angle parameters and to reduce the number of parameters for facilitating the computation,
 we model the correlation structures of the responses in terms of the generalized linear models
 }
-\references{
-{
-\insertRef{Zhang:etal:2015}{BayesRGMM}
-}
-
+\examples{
+\dontrun{
 library(BayesRGMM)
 rm(list=ls(all=TRUE))
 T = 5 #time points
 HSD.para = c(-0.5,  -0.3) #the parameters in HSD model
 a = length(HSD.para)
-w = array(runif(T\emph{T}a), c(T, T, a)) #design matrix in HSD model
+w = array(runif(T*T*a), c(T, T, a)) #design matrix in HSD model
 signif(CorrMat.HSD(w, HSD.para), 4)
+}
+}
+\references{
+{
+\insertRef{Zhang:etal:2015}{BayesRGMM}
+}
 }
 \author{
 Kuo-Jung Lee \href{mailto:kuojunglee@ncku.edu.tw}{kuojunglee@ncku.edu.tw}

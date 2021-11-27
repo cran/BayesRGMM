@@ -69,7 +69,7 @@ private:
     double acc_phi_rate, acc_psi_rate;
     
     bool updateystar, updateb, updatenu, updatebeta, updateSigma, updatephi, updatepsi; //, updateomega;
-    bool SinglePhiPsi; 
+    bool SinglePhiPsi, Robustness; 
     //bool Unconstraint;
     
     double AIC, BIC, CIC, DIC, MPL, logL, RJ_R, ACC;// MSPE;
@@ -77,7 +77,7 @@ private:
     //vec lower, upper;
     
 public:
-    ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order);
+    ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, bool bRobustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order);
     
     void Update_ystar_b_nu_beta_Sigma(int iter);
 

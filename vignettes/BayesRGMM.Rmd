@@ -27,7 +27,7 @@ BayesRGMM <- "https://sites.google.com/view/kuojunglee/r-packages/bayesrgmm" # N
 
 # Abstract
 
-`BayesRGMM` has the functionality to deal with the incomplete longitudinal studies on binary outcomes that are measured repeatedly on subjects over time with drop-outs. Here, we briefly describe the background of methodology and provide an overview of the contents in `BayesRGMM`.
+`BayesRGMM` has the functionality to deal with the incomplete longitudinal studies on binary or ordinal outcomes that are measured repeatedly on subjects over time with drop-outs. Here, we briefly describe the background of methodology and provide an overview of the contents in `BayesRGMM`.
 
 
 # Main Methodology
@@ -40,11 +40,29 @@ Denote the response vector for the $i$th subject by $\boldsymbol{y}_i=(y_{i1},\c
 \end{eqnarray}
 where $\beta$ is a $p\times 1$ unknown mean parameter vectors, $x_{it}$ is a $p\times 1$ corresponding vector of covariates, $z_{it}$ is a $q\times 1$ vector,  $0$ is a $n_i\times 1$ zero vector, $\Sigma$ is a $q\times q$ covariance matrix reflecting the subject variations, and $\Gamma(a,b)$ denotes the gamma distribution with shape parameter $a$ and scale parameter $b$. In this paper, we consider the normal and binary responses and the corresponding links are identity and probit, respectively.  
 
-To employ Markov Chain Monte Carlo algorithm techniques for Bayesian estimates and reduce the computational complexity, we introduce a latent variable latent variable $y_{it}^*$ to associate with the binary outcome $y_{it}$. The unobservable latent variable $y_{it}^*$ and the observed binary outcome $y_{it}$ are connected by:
+To employ Markov Chain Monte Carlo algorithm techniques for Bayesian estimates and reduce the computational complexity, we introduce a latent variable latent variable $y_{it}^*$ to associate with the binary or ordinal outcome $y_{it}$ as follows, respectively. 
+
+(a) Binary outcome: 
+The unobservable latent variable $y_{it}^*$ and the observed binary outcome $y_{it}$ are connected by:
 \[
 y_{it}=\mathbf{I}_{(y_{it}^*>0)}, \quad t = 1, \ldots, n_i, 
 \]
-where $\mathbf{I}_{A}$ is the indicator of event $A$. Note that $y_{it}$ is 1 or 0 according to the sign of $y_{it}^*$. We assume that the latent variable is associated with explanatory variable $x_{it}$ and random effect $z_{it}$ with two different approaches to explaining the correlation of the repeated measures within a subject in next two sections. 
+where $\mathbf{I}_{A}$ is the indicator of event $A$. Note that $y_{it}$ is 1 or 0 according to the sign of $y_{it}^*$. 
+
+(b) Ordinal outcome: 
+The atent variable $y_{it}^*$ is associated with each ordinal response $y_{it}$. Hence, the probaility of $y_{it}=k$ is modeled through the probability of $y_{it}^*$ falling into the interval of $(\alpha_{k-1},\alpha_k]$, that is, given the random effect $b_i$,
+\begin{eqnarray}\label{model-3}
+  y_{it}=k \mbox{ if } \alpha_{k-1} < y_{it}^* \leq \alpha_k \mbox{ for }k=1,\ldots, K,
+\end{eqnarray}
+where $-\infty=\alpha_0<\alpha_1<\cdots<\alpha_K=\infty$.
+As consequence, we have the following result:
+\begin{eqnarray*}
+p(y_{it}=k | b_i)=p(\alpha_{k-1}< y_{it}^* \leq \alpha_{k} | b_i),
+\end{eqnarray*}
+for $k=1,\ldots,K$.
+
+We assume that the latent variable is associated with explanatory variable $x_{it}$ and random effect $z_{it}$ with two different approaches to explaining the correlation of the repeated measures within a subject in next two sections. 
+
 
 ## Modified Cholesky Decomposition with Hypersphere Decomposition
 We assume 
@@ -184,7 +202,7 @@ p(\boldsymbol{y}^*|\boldsymbol{b}, \theta) = \prod_{i=1}^N\prod_{t=1}^{n_i} f(y^
 \]
 where $\theta $ denote the collection of model parameters, $\mu_{it} = x_{it}^T\beta+z_{it}^Tb_i$ and $f(\cdot)$ is the multivariate normal density function. 
 
-To complete the Bayesian specification of the model, we use proper prior distributions instead of noninformative priors, in order to guarantee the propriety of posterior distribution. The prior distributions for $\beta$, $\Sigma$, and $\delta$ in the model are given by:
+To complete the Bayesian specification of the model, we use proper prior distributions instead of noninformative priors, in order to guarantee the propriety of posterior distribution. The prior distributions for $\beta$, $\Sigma$, and $\delta$ in the model for binary outcome are given by:
 \begin{eqnarray*}
 &&\beta \sim N_p(0,\sigma_{\beta}^2 \mathrm{I}), \\
 &&\Sigma \sim \mathcal{IW}(\nu_b, \Lambda^{-1}), 
@@ -192,19 +210,29 @@ To complete the Bayesian specification of the model, we use proper prior distrib
 where $\sigma_{\beta}^2$ and $\sigma_{\delta}^2$ are large to be noninformative [@Daniels:Zhao:2003], $\mathrm{I}$ is the identity matrix corresponding to the dimension of the parameter, and $\Lambda$ is the positive definite scale matrix. Here $N_m(\mu,\Omega)$ denotes the $m$-variate multivariate normal distribution with a mean vector $\mu$ and a covariance matrix $\Omega$, and $\mathcal{IW}(\nu,\Lambda^{-1})$ denotes the inverse Wishart distribtion with degrees of freedom $\nu$ and a symmetric positive definite $q\times q$ scale matrix.
 
 The prior of the parameters in correlation matrix for two different correlation structures are 
-\begin{description}
-\item [MCD] In the the case of modified Cholesky decomposition with hypersphere decomposition,  we assume $\delta \sim N_a(0, \sigma_{\delta}^2\mathrm{I})$. 
-\item [ARMA] In ARMA correlation structure, the non-informative priors is assumed for temporal parameters in GARPM $\phi$'s and GAMPM $\psi$'s with constraints on them to ensure the stationary. 
+(a) MCD 
+In the the case of modified Cholesky decomposition with hypersphere decomposition,  we assume $\delta \sim N_a(0, \sigma_{\delta}^2\mathrm{I})$. 
+(b) ARMA
+In ARMA correlation structure, the non-informative priors is assumed for temporal parameters in GARPM $\phi$'s and GAMPM $\psi$'s with constraints on them to ensure the stationary. 
 \end{description}
+
+Furthermore, in the ordinal outcome a prior for $\alpha$ is provided 
+\[
+\alpha \sim N_{K-1}(0,\sigma_{\alpha}^2I)\mathbf{I}_{(-\infty<\alpha_1<\cdots <\alpha_{K-1}<\infty)}, 
+\]
+where $\sigma_{\alpha}^2$ is prespecified. 
 
 # Implementation
 The aim of this section is to provide a detailed step-by-step in simulation studies to highlight the most important features of package `BayesRGMM`, and to show how to extract the most important results.  This section can also be considered as a user manual which allows the readers to run their own similar analyses involving only a mild modification of the example code.  
 
-The `BayesRGMM` package contains four core functions. The main function ``BayesRobustProbit` carries out the entire MCMC procedure, and outputs the posterior samples and estimates for model parameters along with several useful estimated information criterion statistics. Internally, most of the calculation is provided by a compiled \texttt{C++} code to reduce the computational time.  User-friendly summary function `BayesRobustProbitSummary` that summarizes model estimation outcomes is equipped with `BayesRobustProbit`. 
-It provides basic posterior summary statistics such as the posterior point and confidence interval estimates of parameters and the values of  information criterion statistics for model comparison. The function `SimulatedDataGenerator` is used to generate simulated data for simulation studies with ARMA and MCD correlation structures. `CorrMat.HSD` is applied to calculate the correlation matrix in MCD model structure.  In this section, we focus primarily on introducing the those functions, and demonstrate their usage with numerical experiments.
+The `BayesRGMM` package contains four core functions. The main functions both `BayesRobustProbit` for binary outcome and `BayesCumulativeProbitHSD` for ordinal outcomes carries out the entire MCMC procedure, and outputs the posterior samples and estimates for model parameters along with several useful estimated information criterion statistics. Internally, most of the calculation is provided by a compiled \texttt{C++} code to reduce the computational time.  User-friendly summary function `BayesRobustProbitSummary` that summarizes model estimation outcomes is equipped with `BayesRobustProbit` and `BayesCumulativeProbitHSD`. 
+It provides basic posterior summary statistics such as the posterior point and confidence interval estimates of parameters and the values of  information criterion statistics for model comparison. The function `SimulatedDataGenerator` and `SimulatedDataGenerator.CumulativeProbit` are used to generate simulated binary and ordinal data, respectively, for simulation studies with ARMA and MCD correlation structures. `CorrMat.HSD` is applied to calculate the correlation matrix in MCD model structure.  In this section, we focus primarily on introducing the those functions, and demonstrate their usage with numerical experiments.
 
 ## Simulation Studies
-In the simulation, we demonstrate the use of functions in the `BayesRGMM` package.We consider a simple random intercept model $q=1$ with the regression coefficient vector of size $p=4$ given by
+In the simulation, we demonstrate the use of functions in the `BayesRGMM` package.
+
+### Binary Outcome
+We consider a simple random intercept model $q=1$ with the regression coefficient vector of size $p=4$ given by
 \[
 \beta = (-0.2,-0.3, 0.8, -0.4)', 
 \]
@@ -221,7 +249,7 @@ p^{\mbox{miss}}_{it} = \frac{e^{\eta_{it}}}{1+e^{\eta_{it}}}.
 \]
 The data for subject $i$ at time point $t$ is missing according to three observed responses for the subject.
 
-## Simulation 1: MCD Correlation Structure
+#### Simulation 1: MCD Correlation Structure
 The correlation matrix $R_i$ is created based on the given values
 \begin{align}\label{Eq:Order_in_HS}
 \delta = (-0.5, -0.3)' \quad \mbox{and} \quad u_{itj} = \left(\mathbf{I}\left\{|t-s|=1\right\}, \mathbf{I}\left\{|t-s|=2\right\}\right)'
@@ -286,7 +314,7 @@ options(original)
 ```
 
 
-## Simulation 2: ARMA Correlation Structure
+#### Simulation 2: ARMA Correlation Structure
 To model the serial dependence for the repeated measurement, we consider an ARMA(1, 1) correlation structure with 
 \[
 \phi = 0.4, \qquad \mbox{and}\qquad \psi = 0.2. 
@@ -333,3 +361,85 @@ print(Model.Estimation$model.info)
 options(original)
 
 ```
+
+### Ordinal Outcome
+We consider a simple random intercept model ($q=1$). For $k = 1, 2, 3$  and $t=1,\ldots,n_i$, the model is given by:
+\begin{align}
+&y_{it}^*=\beta_{1}Time_{it}+\beta_{2}Group_{i}+\beta_{3}Time_{it}\times Group_{i}+b_{i0}+\epsilon_{it},\label{sim-1}\\
+&b_{i0}\sim N(0,\sigma_b^2),\label{sim-2}\\
+&\epsilon_{i}=(\epsilon_{i1},\ldots,\epsilon_{in_i})^T\sim N(0,R_i),\label{sim-3}    
+\end{align}
+where $Time_{it}\sim N(0,1)$ and $Group_{i}$ equals 0 or 1 with approximately the same sample size for each group.
+The true parameters in the simulations are as below:
+\begin{eqnarray*}
+&&(\beta_{01},\beta_{02})=(-0.5,0.5);~~(\beta_1,\beta_2,\beta_3)=(-0.1,0.1,-0.1);~~ \sigma_b^2=0.2.
+\end{eqnarray*}
+The model for correlation matrix $R_i$ is given by
+\begin{eqnarray}
+\log\left(\frac{\omega_{itj}}{\pi-\omega_{itj}}\right)=\delta_1 1_{(|t-j|=1)}+\delta_2 1_{(|t-j|=2)},
+\end{eqnarray}
+where $(\delta_1,\delta_2)=(-0.9,-0.6)$. We consider a data that is missing completely at random (MCAR) with a machine defined by
+\begin{align*}
+\eta_{it} &= -0.7\times y_{t-1, i} -0.2\times y_{t-2, i}-0.1\times y_{t-3, i}; 
+\end{align*}
+Then the missing probability depends on $\eta_{it}$'s defined as
+\[
+p^{\mbox{miss}}_{it} = \frac{e^{\eta_{it}}}{1+e^{\eta_{it}}}. 
+\]
+The data for subject $i$ at time point $t$ is missing according to three observed responses for the subject.
+```{r Ordinal, tidy = TRUE, eval = TRUE}
+library(BayesRGMM)
+rm(list=ls(all=TRUE))
+
+Fixed.Effs = c(-0.1, 0.1, -0.1) #c(-0.8, -0.3, 1.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
+P = length(Fixed.Effs) 
+q = 1 #number of random effects
+T = 7 #time points
+N = 100 #number of subjects
+Num.of.Cats = 3 #in KBLEE simulation studies, please fix it. 
+num.of.iter = 1000 #number of iterations
+
+HSD.para = c(-0.9, -0.6) #the parameters in HSD model
+a = length(HSD.para)
+w = array(runif(T*T*a), c(T, T, a)) #design matrix in HSD model
+ 
+for(time.diff in 1:a)
+w[, , time.diff] = 1*(as.matrix(dist(1:T, 1:T, method="manhattan")) ==time.diff)
+
+
+x = array(0, c(T, P, N))
+for(i in 1:N){
+    #x[,, i] = t(rmvnorm(P, rep(0, T), AR1.cor(T, Cor.in.DesignMat)))
+    x[, 1, i] = 1:T
+    x[, 2, i] = rbinom(1, 1, 0.5)
+    x[, 3, i] = x[, 1, i]*x[, 2, i]
+}
+
+DesignMat = x
+
+#Generate a data with HSD model
+
+
+#MAR
+CPREM.sim.data = SimulatedDataGenerator.CumulativeProbit(Num.of.Obs = N, 
+    Num.of.TimePoints = T, Num.of.Cats = Num.of.Cats, Fixed.Effs = Fixed.Effs, 
+    Random.Effs = list(Sigma = 0.5*diag(1), df=3), DesignMat = DesignMat, 
+    Missing = list(Missing.Mechanism = 2, MissingRegCoefs=c(-0.7, -0.2, -0.1)), 
+    HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w))
+
+
+print(table(CPREM.sim.data$sim.data$y))
+print(CPREM.sim.data$classes)
+
+
+BCP.output = BayesCumulativeProbitHSD(
+    fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
+    data=CPREM.sim.data$sim.data, random = ~ 1, Robustness = TRUE, 
+    subset = NULL, na.action='na.exclude', HS.model = ~IndTime1+IndTime2, 
+    hyper.params=NULL, num.of.iter=num.of.iter)
+
+
+
+BCP.Est.output = BayesRobustProbitSummary(BCP.output)
+```
+We considered two scenarios in the simulations both to verify the estimation method for the parameters in the proposed model and to examine the robustness of our models compared to the models with misspecified correlation matrices.

@@ -1,12 +1,13 @@
 //
-//  ProbitML.hpp
+//  CPREMs.hpp
 //  
 //
-//  Created by kuojung on 2020/2/26.
+//  Created by Kuo-Jung Lee on 2021/6/7.
 //
 
-#ifndef ProbitML_hpp
-#define ProbitML_hpp
+#ifndef CPREMs_hpp
+#define CPREMs_hpp
+
 
 //#include <math.h>
 
@@ -44,49 +45,51 @@ using namespace Rcpp;
 using namespace arma;
 
 
-class ProbitMLModelSelection{
+class CumulativeProbitModel{
 private:
     int Num_of_iterations, Num_of_Timepoints;
     int Num_of_obs, Num_of_covariates;
-    int Num_of_RanEffs, Num_of_deltas;
-    mat Y, Y_star_sample; //TxN
+    int Num_of_RanEffs, Num_of_deltas, Num_of_Cats;
+    mat Y_star_sample; //TxN
+    mat Y_pred;
+    umat Y;
     cube X, Z, U; //TxPxN, TxQxN, TxTx(a*N)
     field<cube> UU; //TxTxNxa
     vec TimePointsAvailable;//group_indices,
+    mat alpha_samples;
     List Data, InitialValues, HyperPara, UpdatePara, TuningPara;
     cube Sigma_samples, b_samples;
     mat beta_samples, nu_samples, delta_samples;
     
     mat Sigma_mean, b_mean;
-    vec beta_mean, nu_mean, delta_mean;
+    vec beta_mean, nu_mean, delta_mean, alpha_mean;
     double sigma2_beta, sigma2_delta, v_gamma, Vb;
-    double tuning_delta;
+    double tuning_delta, tuning_alpha, sigma2_alpha;
     mat Lambda, Ib_diag, Idelta_diag;
     
-    double acc_rate_delta; 
+    double acc_rate_delta, acc_rate_alpha;
     
-    bool updateystar, updateb, updatenu, updatebeta, updateSigma, updatedelta; //, updateomega;
-    bool Unconstraint, Robustness;
+    bool updateystar, updateb, updatenu, updatebeta, updateSigma, updatedelta, updatealpha;
+    bool Robustness;
     
     double AIC, BIC, CIC, DIC, MPL, logL, RJ_R, ACC;// MSPE;
     //cube pred_y;
     //vec lower, upper;
     
 public:
-    ProbitMLModelSelection(int iNum_of_iterations, List list_Data, bool bRobustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara);
-    
-
-    void Update_nu(int iter);
-
-    void Update_Sigma(int iter);
-    void Update_delta(int iter);
-    void Update_ystar_b_beta_Sigma(int iter);
-    
-    void ParameterEstimation();
+    CumulativeProbitModel(int iNum_of_iterations, List list_Data, bool bRobustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara);
     
     mat Ri_Version2(int i, int tp, vec delta);
+    void Update_ystar_b_beta_Sigma(int iter);
+    void Update_nu(int iter);
+    void Update_delta(int iter);
+    void ParameterEstimation();
+    
     
     SEXP MCMC_Procedure();
 };
 
-#endif /* ProbitML_hpp */
+
+
+
+#endif /* CPREMs_hpp */

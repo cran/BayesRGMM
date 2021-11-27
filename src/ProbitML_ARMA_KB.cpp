@@ -21,7 +21,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 
-ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order)
+ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, bool b_Robustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order)
 {
     Num_of_iterations = iNum_of_iterations;
     Data = list_Data;
@@ -29,6 +29,7 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
     HyperPara = list_HyperPara;
     UpdatePara = list_UpdatePara;
     TuningPara = list_TuningPara;
+    Robustness = b_Robustness;
     
     phi_tune = as<double>(TuningPara["TuningPhi"]);
     psi_tune = as<double>(TuningPara["TuningPsi"]);

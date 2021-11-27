@@ -89,6 +89,7 @@ SimulatedDataGenerator = function(Num.of.Obs, Num.of.TimePoints, Fixed.Effs, Ran
 	Sigma = Random.Effs$Sigma#*diag(q)#0.5*diag(q)
 	for(i in 1:N)
 		b = cbind(b, t(rmvnorm(1, rep(0, q), Sigma /nu[i])))
+
 #=====================================================================================================#
 	if(Cor.Str == "HSD"){
 		#delta = HSD.para #c(-0.5, -0.3)

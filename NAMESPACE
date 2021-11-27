@@ -2,8 +2,9 @@ useDynLib(BayesRGMM, .registration=TRUE)
 
 # Exported functions
 
-export(CorrMat.HSD, SimulatedDataGenerator)
+export(CorrMat.HSD, SimulatedDataGenerator, SimulatedDataGenerator.CumulativeProbit)
 export(BayesRobustProbitSummary, BayesRobustProbit, AR1.cor)
+export(BayesCumulativeProbitHSD)
 
 
 # Imported functions
@@ -16,3 +17,5 @@ importFrom("stats", "as.formula", "complete.cases", "dist",
              "update")
 
 importFrom(Rdpack,reprompt)
+importFrom("stats", "na.omit")
+

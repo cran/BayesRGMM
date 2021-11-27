@@ -23,8 +23,8 @@ ARMA.sim.data = SimulatedDataGenerator(Num.of.Obs = N, Num.of.TimePoints = T, Fi
 sum(ARMA.sim.data$sim.data$y==1, na.rm=T)/sum(!is.na(ARMA.sim.data$sim.data$y))
 
 ARMA.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
-	                          data=ARMA.sim.data$sim.data, random = ~ 1, subset = NULL, na.action='na.exclude', 
-	                          arma.order = c(1, 1), num.of.iter = num.of.iter)
+	                          data=ARMA.sim.data$sim.data, random = ~ 1, Robustness = TRUE, subset = NULL, 
+	                          na.action='na.exclude', arma.order = c(1, 1), num.of.iter = num.of.iter)
 
 original = options(digits = 4)
 

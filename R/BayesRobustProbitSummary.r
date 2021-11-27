@@ -40,8 +40,8 @@
 #'         InvWishart.Lambda = diag(q) )
 #'
 #' HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
-#' 	data=HSD.sim.data$sim.data, random = ~ 1, HS.model = ~IndTime1+IndTime2, subset = NULL, 
-#' 	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
+#' 	data=HSD.sim.data$sim.data, random = ~ 1, Robustness=TRUE, HS.model = ~IndTime1+IndTime2, 
+#'  subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
 #' 
 #' BayesRobustProbitSummary(HSD.output)
 #' }
@@ -50,11 +50,13 @@
 BayesRobustProbitSummary = function(object, digits = max(1L, getOption("digits") - 4L))
 {
 	
-	if(object$call[1]!="BayesProbitHSD()" & object$call[1]!="BayesProbitARMA()")
+	if(object$call[1]!="BayesProbitHSD()" & object$call[1]!="BayesProbitARMA()" & object$call[1]!="BayesCumulativeProbitHSD()")
 		stop("Please input the correct object!!")
 	if(object$call[1] == "BayesProbitHSD()")
 		output = BayesProbitHSD.Summary(object, digits = digits)
 	if(object$call[1] == "BayesProbitARMA()")
 		output = BayesProbitARMA.Summary(object, digits = digits)
+	if(object$call[1] == "BayesCumulativeProbitHSD()")
+		output = BayesProbitHSD.Summary(object, digits = digits)
 	output
 }

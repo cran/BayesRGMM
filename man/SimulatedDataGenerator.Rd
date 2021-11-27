@@ -48,6 +48,7 @@ a list containing the following components:
 This function is used to generate simulated data for simulation studies with ARMA and MCD correlation structures.
 }
 \examples{
+\dontrun{
 library(BayesRGMM)
 rm(list=ls(all=TRUE))
 Fixed.Effs = c(-0.2, -0.3, 0.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
@@ -82,4 +83,5 @@ ARMA.sim.data = SimulatedDataGenerator(Num.of.Obs = N, Num.of.TimePoints = T,
 	Fixed.Effs = Fixed.Effs, Random.Effs = list(Sigma = 0.5*diag(1), df=3), 
 	Cor.in.DesignMat = 0., list(Missing.Mechanism = 2, RegCoefs = c(-1.5, 1.2)), 
 	Cor.Str = "ARMA", ARMA.para=list(AR.para = 0.8))
+}
 }

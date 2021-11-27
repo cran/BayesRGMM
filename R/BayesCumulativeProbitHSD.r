@@ -1,4 +1,103 @@
-BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS.model, hyper.params, num.of.iter)
+#' Perform MCMC algorithm to generate the posterior samples for longitudinal ordinal data
+#'
+#' This function is used to generate the posterior samples using MCMC algorithm from the  
+#' cumulative probit model with the hypersphere decomposition applied to model the correlation structure 
+#' in the serial dependence of repeated responses.
+#'
+#' @param fixed a two-sided linear formula object to describe fixed-effects with the response on the left of 
+#' a \samp{~} operator and the terms separated by \samp{+} or \samp{*} operators, on the right. 
+#' The specification \code{first*second} indicates the cross of \code{first} and \code{second}. 
+#' This is the same as \code{first + second + first:second}.
+#' @param data  an optional data frame containing the variables named in \samp{fixed} and \samp{random}. 
+#' It requires an ``integer'' variable named by \samp{id} to denote the identifications of subjects. 
+#' @param random a one-sided linear formula object to describe random-effects with the terms separated by 
+#' \samp{+} or \samp{*} operators on the right of a \samp{~} operator.
+#' @param Robustness logical. If 'TRUE' the distribution of random effects is assumed to be t-distribution; 
+#' otherwise normal distribution. 
+#' @param na.action a function that indicates what should happen when the data contain NA’s. 
+#' The default action (\samp{na.omit}, inherited from the \samp{factory fresh} value of 
+#' \samp{getOption("na.action")}) strips any observations with any missing values in any variables.
+#' @param subset an optional expression indicating the subset of the rows of \samp{data} that should be used in the fit. 
+#' This can be a logical vector, or a numeric vector indicating which observation numbers are to be included, 
+#' or a character vector of the row names to be included.  All observations are included by default.
+#' @param HS.model a specification of the correlation structure in HSD model: \code{HS.model = ~0} denotes 
+#' independence, that is, \eqn{R_i} is an identity matrix,  
+#' \code{HS.model = ~IndTime+}\eqn{\cdots}\code{+IndTimer} denotes AR(r) correlation structure, 
+#' \code{HS.model = ~DiffTime1+}\eqn{\cdots}\code{+DiffTimer} denotes correlation structure related to \eqn{r}th order 
+#' of time difference. 
+#' @param hyper.params specify the values in hyperparameters in priors. 
+#' @param num.of.iter an integer to specify the total number of iterations; default is 20000.      
+#'
+#' @return a list of posterior samples, parameters estimates, AIC, BIC, CIC, DIC, MPL, RJR, predicted values, 
+#' and the acceptance rates in MH are returned.
+#'
+#' @note Only a model either HSD (\samp{HS.model}) or ARMA (\samp{arma.order}) model should be specified in the function. 
+#' We'll provide the reference for details of the model and the algorithm for performing 
+#' model estimation whenever the manuscript is accepted. 
+#'
+#' @author Kuo-Jung Lee <kuojunglee@ncku.edu.tw> 
+#' @references{
+#'   \insertRef{Lee:etal:2021}{BayesRGMM} 
+#'   
+#'   \insertRef{Lee:etal:2020}{BayesRGMM}
+#'
+#'} 
+#'
+#' @examples
+#' \dontrun{
+#' library(BayesRGMM)
+#' rm(list=ls(all=TRUE))
+#' 
+#' Fixed.Effs = c(-0.1, 0.1, -0.1) #c(-0.8, -0.3, 1.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
+#' P = length(Fixed.Effs) 
+#' q = 1 #number of random effects
+#' T = 7 #time points
+#' N = 100 #number of subjects
+#' Num.of.Cats = 3 #in KBLEE simulation studies, please fix it. 
+#' num.of.iter = 1000 #number of iterations
+#' 
+#' HSD.para = c(-0.9, -0.6) #the parameters in HSD model
+#' a = length(HSD.para)
+#' w = array(runif(T*T*a), c(T, T, a)) #design matrix in HSD model
+#'  
+#' for(time.diff in 1:a)
+#' w[, , time.diff] = 1*(as.matrix(dist(1:T, 1:T, method="manhattan")) ==time.diff)
+#' 
+#' x = array(0, c(T, P, N))
+#' for(i in 1:N){
+#'     #x[,, i] = t(rmvnorm(P, rep(0, T), AR1.cor(T, Cor.in.DesignMat)))
+#'     x[, 1, i] = 1:T
+#'     x[, 2, i] = rbinom(1, 1, 0.5)
+#'     x[, 3, i] = x[, 1, i]*x[, 2, i]
+#' }
+#' 
+#' DesignMat = x
+#' 
+#' #Generate a data with HSD model
+#' 
+#' 
+#' #MAR
+#' CPREM.sim.data = SimulatedDataGenerator.CumulativeProbit(Num.of.Obs = N, 
+#'     Num.of.TimePoints = T, Num.of.Cats = Num.of.Cats, Fixed.Effs = Fixed.Effs, 
+#'     Random.Effs = list(Sigma = 0.5*diag(1), df=3), DesignMat = DesignMat, 
+#'     Missing = list(Missing.Mechanism = 2, MissingRegCoefs=c(-0.7, -0.2, -0.1)), 
+#'     HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w))
+#' 
+#' print(table(CPREM.sim.data$sim.data$y))
+#' print(CPREM.sim.data$classes)
+#' 
+#' BCP.output = BayesCumulativeProbitHSD(
+#'     fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
+#'     data=CPREM.sim.data$sim.data, random = ~ 1, Robustness = TRUE, 
+#'     subset = NULL, na.action='na.exclude', HS.model = ~IndTime1+IndTime2, 
+#'     hyper.params=NULL, num.of.iter=num.of.iter)
+#' 
+#' BCP.Est.output = BayesRobustProbitSummary(BCP.output)
+#' }
+
+
+
+BayesCumulativeProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS.model, hyper.params, num.of.iter)
 {
 
 # process data: reponse, fixed and random effects matrices. 
@@ -12,9 +111,10 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     mf[[1L]] <- quote(model.frame)
     names(mf)[2] = "formula"
 
+
     fixed.eff = all.vars.character(fixed[-2])$m[[2]]
 
-    fixed.eff.intercept.included = !any(grepl("-1", fixed.eff))
+    #fixed.eff.intercept.included = !any(grepl("-1", fixed.eff))
     
     random.eff = all.vars.character(random)$m[[2]]
 
@@ -33,7 +133,12 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     interaction.terms = attr(terms.formula(as.formula(HS.model)), "term.labels")
 
     #cat("HS.model = ", interaction.terms, "\n")
+    mf2 = eval(mf, parent.frame())
+    Terms = attr(mf2, "terms")
+    fixed.eff = colnames(model.matrix(Terms, mf2))
 
+
+    fixed.eff = fixed.eff[-1]
 
 
     mf[[2L]] = update(fixed, as.formula(paste("~.+", paste(random.eff, collapse="+") )))
@@ -48,9 +153,10 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     yy <- model.response(mf, "numeric") #model.response(mf, "numeric")
     xx <- model.matrix(m.design.mat, mf)
 
-    fixed.eff = attr(terms.formula(fixed), "term.labels")
-    if(fixed.eff.intercept.included)
-        fixed.eff = c("(Intercept)", fixed.eff)
+
+    #fixed.eff = attr(terms.formula(fixed), "term.labels")
+    #if(fixed.eff.intercept.included)
+    #    fixed.eff = c("(Intercept)", fixed.eff)
 
     #cat("fixed.eff = ", fixed.eff, "\n")
 
@@ -64,6 +170,8 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     z.random = xx[, colnames(xx)%in%random.eff, drop=FALSE]
 
     id = xx[, colnames(xx)%in%"id"]
+
+
 
     p = dim(x.fixed)[2]
     q = dim(z.random)[2]
@@ -235,30 +343,32 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     x = array(0, c(T, p, N)) #intercept,
     z = array(0, c(T, length(random.eff), N)) #intercept,
 
-
+    id.index = unique(id)
 
     for(i in 1:N){
-        y[1:TimePointsAvailable[i], i] = yy[id==i]
-        x[1:TimePointsAvailable[i], , i]  = as.matrix(x.fixed[id==i, ])
-        z[1:TimePointsAvailable[i], , i]  = as.matrix(z.random[id==i, ], drop=FALSE)
+        y[1:TimePointsAvailable[i], i] = yy[id==id.index[i]]
+        x[1:TimePointsAvailable[i], , i]  = as.matrix(x.fixed[id==id.index[i], ])
+        z[1:TimePointsAvailable[i], , i]  = as.matrix(z.random[id==id.index[i], ], drop=FALSE)
     }
 
-    if(length(hyper.params)==0){
-        sigma2.beta = 1
-        sigma2.delta = 1
-        v.gamma = 5
-        InvWishart.df = 5
-        InvWishart.Lambda = diag(q)
-    }
-    else{
-        sigma2.beta = hyper.params$sigma2.beta
-        sigma2.delta = hyper.params$sigma2.delta
-        v.gamma = hyper.params$v.gamma
-        InvWishart.df = hyper.params$InvWishart.df
-        InvWishart.Lambda = hyper.params$InvWishart.Lambda       
-    }
+    #Defult values for hyperparameters
+        #sigma2.alpha = 0.1
+        #sigma2.beta = 1
+        #sigma2.delta = 1
+        #v.gamma = 5
+        #InvWishart.df = 5
+        #InvWishart.Lambda = diag(q)
+
+        sigma2.alpha = ifelse(is.null(hyper.params$sigma2.alpha), 0.1, hyper.params$sigma2.alpha)
+        sigma2.beta = ifelse(is.null(hyper.params$sigma2.beta), 1, hyper.params$sigma2.beta)
+        sigma2.delta = ifelse(is.null(hyper.params$sigma2.delta), 1, hyper.params$sigma2.delta)
+        v.gamma = ifelse(is.null(hyper.params$v.gamma), 5, hyper.params$v.gamma)
+        InvWishart.df = ifelse(is.null(hyper.params$InvWishart.df), 5, hyper.params$InvWishart.df)
+        InvWishart.Lambda = if(is.null(hyper.params$InvWishart.Lambda)) diag(q) else hyper.params$InvWishart.Lambda
+
 
     UpdateYstar = TRUE
+    UpdateAlpha = TRUE
     UpdateRandomEffect = TRUE
     UpdateBeta = TRUE
     UpdateSigma = TRUE 
@@ -266,12 +376,29 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     UpdateDelta = ifelse(is.null(u), FALSE, TRUE)
 
 
-    y.star.ini = matrix(0, T, N)
-    if(UpdateYstar){
-        y.star.ini[y%in%1] = rtnorm(sum(y%in%1), lower=0, upper=Inf)
-        y.star.ini[y%in%0] = rtnorm(sum(y%in%0), lower=-Inf, upper=0)
-    }
+    Num.of.Cats = length(unique(na.omit(c(y))))
 
+
+    y.star.ini = matrix(0, T, N)
+
+
+    alpha.ini = c(-Inf, seq(-5, 5, length = Num.of.Cats-1), Inf)
+
+    #print(alpha.ini)
+
+    y = y-min(y, na.rm=TRUE)+1 # to make the categorical variable begin with 1
+
+    #y[is.na(y)] = 1000 # missing values specified by 1000
+    y[!is.finite(y)] = 1000
+    #y[is.nan(y)] = 1000
+
+    #print(head(is.finite(y)))
+    #print(head(y))
+
+    for(i in 1:Num.of.Cats)
+        y.star.ini[y%in%i] = rtnorm(sum(y%in%i), lower=alpha.ini[i], upper=alpha.ini[i+1])
+
+    #print(head(y.star.ini))
 
     b.ini = NULL
     Sigma = diag(q)
@@ -291,21 +418,22 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     Data = list(Y = y, X = x, Z=z, U = u, TimePointsAvailable = TimePointsAvailable)
 
 
-    InitialValues = list(y.star = y.star.ini, b = b.ini, nu = nu.ini, beta = beta.ini , Sigma = Sigma.ini, delta = delta.ini)
+    InitialValues = list(y.star = y.star.ini, alpha = alpha.ini, b = b.ini, nu = nu.ini, beta = beta.ini , Sigma = Sigma.ini, delta = delta.ini)
 
 
-    HyperPara = list(sigma2.beta = sigma2.beta, sigma2.delta=sigma2.delta, v.gamma = v.gamma, InvWishart.df = InvWishart.df, InvWishart.Lambda=InvWishart.Lambda)
+    HyperPara = list(sigma2.beta = sigma2.beta, sigma2.delta=sigma2.delta, sigma2.alpha=sigma2.alpha, v.gamma = v.gamma, InvWishart.df = InvWishart.df, InvWishart.Lambda=InvWishart.Lambda)
 
 
-    UpdatePara = list(UpdateYstar = UpdateYstar, UpdateRandomEffect = UpdateRandomEffect, UpdateNu = UpdateNu, 
+    UpdatePara = list(UpdateYstar = UpdateYstar, UpdateAlpha = UpdateAlpha, UpdateRandomEffect = UpdateRandomEffect, UpdateNu = UpdateNu, 
                       UpdateBeta = UpdateBeta, UpdateSigma = UpdateSigma, UpdateDelta = UpdateDelta)
 
     TuningPara = list(TuningDelta = 0.01)
 
+
  if(1){  
     start.time <- Sys.time()
 
-    PosteriorSamplesHSD = ProbitMCMCHSD(num.of.iter, Data, Robustness, InitialValues, HyperPara, UpdatePara, TuningPara)
+    PosteriorSamplesCP = CumulativeProbitMCMC(num.of.iter, Data, Robustness, InitialValues, HyperPara, UpdatePara, TuningPara)
 
     end.time <- Sys.time()
 
@@ -319,7 +447,7 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
     cat("\nNumber of subjects:", N, "\n\n")
 
 
-    out <- list(Posterior.Samples = PosteriorSamplesHSD, Fixed.Effects.Names = fixed.eff, 
+    out <- list(Posterior.Samples = PosteriorSamplesCP, Fixed.Effects.Names = fixed.eff, 
                 Random.Effects.Names = random.eff, 
                 Response = y, Fixed.Effects.Mat = x, Random.Effects.Mat = z, 
                 HS.model.Mat = uu, call = cl, Num.of.Iter = num.of.iter)
@@ -329,5 +457,6 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
 }
 
 }
+
 
 

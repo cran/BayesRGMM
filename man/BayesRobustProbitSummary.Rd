@@ -20,6 +20,7 @@ It provides basic posterior summary statistics such as the posterior point and
 confidence interval estimates of parameters and the values of  information criterion statistics for model comparison.
 }
 \examples{
+\dontrun{
 library(BayesRGMM)
 rm(list=ls(all=TRUE))
 Fixed.Effs = c(-0.2, -0.3, 0.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
@@ -53,4 +54,5 @@ HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P
 	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
 
 BayesRobustProbitSummary(HSD.output)
+}
 }

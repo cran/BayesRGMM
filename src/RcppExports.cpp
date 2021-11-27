@@ -7,42 +7,62 @@
 using namespace Rcpp;
 
 // ProbitMCMCHSD
-RcppExport SEXP ProbitMCMCHSD(SEXP i_Num_of_iterations, SEXP list_Data, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara);
-RcppExport SEXP _BayesRGMM_ProbitMCMCHSD(SEXP i_Num_of_iterationsSEXP, SEXP list_DataSEXP, SEXP list_InitialValuesSEXP, SEXP list_HyperParaSEXP, SEXP list_UpdateParaSEXP, SEXP list_TuningParaSEXP) {
+RcppExport SEXP ProbitMCMCHSD(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara);
+RcppExport SEXP _BayesRGMM_ProbitMCMCHSD(SEXP i_Num_of_iterationsSEXP, SEXP list_DataSEXP, SEXP logic_RobustSEXP, SEXP list_InitialValuesSEXP, SEXP list_HyperParaSEXP, SEXP list_UpdateParaSEXP, SEXP list_TuningParaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type i_Num_of_iterations(i_Num_of_iterationsSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_Data(list_DataSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type logic_Robust(logic_RobustSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_InitialValues(list_InitialValuesSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_HyperPara(list_HyperParaSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_UpdatePara(list_UpdateParaSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_TuningPara(list_TuningParaSEXP);
-    rcpp_result_gen = Rcpp::wrap(ProbitMCMCHSD(i_Num_of_iterations, list_Data, list_InitialValues, list_HyperPara, list_UpdatePara, list_TuningPara));
+    rcpp_result_gen = Rcpp::wrap(ProbitMCMCHSD(i_Num_of_iterations, list_Data, logic_Robust, list_InitialValues, list_HyperPara, list_UpdatePara, list_TuningPara));
     return rcpp_result_gen;
 END_RCPP
 }
 // ProbitMCMCARMAKB
-RcppExport SEXP ProbitMCMCARMAKB(SEXP i_Num_of_iterations, SEXP list_Data, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara, SEXP ARMA_Order);
-RcppExport SEXP _BayesRGMM_ProbitMCMCARMAKB(SEXP i_Num_of_iterationsSEXP, SEXP list_DataSEXP, SEXP list_InitialValuesSEXP, SEXP list_HyperParaSEXP, SEXP list_UpdateParaSEXP, SEXP list_TuningParaSEXP, SEXP ARMA_OrderSEXP) {
+RcppExport SEXP ProbitMCMCARMAKB(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara, SEXP ARMA_Order);
+RcppExport SEXP _BayesRGMM_ProbitMCMCARMAKB(SEXP i_Num_of_iterationsSEXP, SEXP list_DataSEXP, SEXP logic_RobustSEXP, SEXP list_InitialValuesSEXP, SEXP list_HyperParaSEXP, SEXP list_UpdateParaSEXP, SEXP list_TuningParaSEXP, SEXP ARMA_OrderSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type i_Num_of_iterations(i_Num_of_iterationsSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_Data(list_DataSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type logic_Robust(logic_RobustSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_InitialValues(list_InitialValuesSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_HyperPara(list_HyperParaSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_UpdatePara(list_UpdateParaSEXP);
     Rcpp::traits::input_parameter< SEXP >::type list_TuningPara(list_TuningParaSEXP);
     Rcpp::traits::input_parameter< SEXP >::type ARMA_Order(ARMA_OrderSEXP);
-    rcpp_result_gen = Rcpp::wrap(ProbitMCMCARMAKB(i_Num_of_iterations, list_Data, list_InitialValues, list_HyperPara, list_UpdatePara, list_TuningPara, ARMA_Order));
+    rcpp_result_gen = Rcpp::wrap(ProbitMCMCARMAKB(i_Num_of_iterations, list_Data, logic_Robust, list_InitialValues, list_HyperPara, list_UpdatePara, list_TuningPara, ARMA_Order));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CumulativeProbitMCMC
+RcppExport SEXP CumulativeProbitMCMC(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara);
+RcppExport SEXP _BayesRGMM_CumulativeProbitMCMC(SEXP i_Num_of_iterationsSEXP, SEXP list_DataSEXP, SEXP logic_RobustSEXP, SEXP list_InitialValuesSEXP, SEXP list_HyperParaSEXP, SEXP list_UpdateParaSEXP, SEXP list_TuningParaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type i_Num_of_iterations(i_Num_of_iterationsSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type list_Data(list_DataSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type logic_Robust(logic_RobustSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type list_InitialValues(list_InitialValuesSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type list_HyperPara(list_HyperParaSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type list_UpdatePara(list_UpdateParaSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type list_TuningPara(list_TuningParaSEXP);
+    rcpp_result_gen = Rcpp::wrap(CumulativeProbitMCMC(i_Num_of_iterations, list_Data, logic_Robust, list_InitialValues, list_HyperPara, list_UpdatePara, list_TuningPara));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BayesRGMM_ProbitMCMCHSD", (DL_FUNC) &_BayesRGMM_ProbitMCMCHSD, 6},
-    {"_BayesRGMM_ProbitMCMCARMAKB", (DL_FUNC) &_BayesRGMM_ProbitMCMCARMAKB, 7},
+    {"_BayesRGMM_ProbitMCMCHSD", (DL_FUNC) &_BayesRGMM_ProbitMCMCHSD, 7},
+    {"_BayesRGMM_ProbitMCMCARMAKB", (DL_FUNC) &_BayesRGMM_ProbitMCMCARMAKB, 8},
+    {"_BayesRGMM_CumulativeProbitMCMC", (DL_FUNC) &_BayesRGMM_CumulativeProbitMCMC, 7},
     {NULL, NULL, 0}
 };
 

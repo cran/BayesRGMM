@@ -28,3 +28,6 @@ The correlation matrix is created as
 \end{array}\right)}{ (non-Latex version) }
 }
 
+\examples{
+AR1.cor(5, 0.5)
+}
