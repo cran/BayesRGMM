@@ -28,7 +28,8 @@
 #' of time difference. 
 #' @param arma.order a specification of the order in an ARMA model: the two integer components (p, q) are the AR order and the MA order.
 #' @param hyper.params specify the values in hyperparameters in priors. 
-#' @param num.of.iter an integer to specify the total number of iterations; default is 20000.      
+#' @param num.of.iter an integer to specify the total number of iterations; default is 20000.   
+#' @param Interactive logical. If 'TRUE' when the program is being run interactively for progress bar and 'FALSE' otherwise.   
 #'
 #' @return a list of posterior samples, parameters estimates, AIC, BIC, CIC, DIC, MPL, RJR, predicted values, 
 #' and the acceptance rates in MH are returned.
@@ -78,11 +79,12 @@
 #' 
 #' HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
 #' 	data=HSD.sim.data$sim.data, random = ~ 1, Robustness=TRUE, HS.model = ~IndTime1+IndTime2, 
-#'  subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
+#'  subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter, 
+#'  Interactive=0)
 #' } 
 
 BayesRobustProbit = function(fixed, data, random, Robustness=TRUE, subset=NULL, na.action='na.exclude', arma.order=NULL, 
-	                         HS.model=NULL, hyper.params = NULL, num.of.iter=20000)
+	                         HS.model=NULL, hyper.params = NULL, num.of.iter=20000, Interactive=FALSE)
 { 
 
 	#cat("\nCall:\n", printCall(match.call()), "\n\n", sep = "")
@@ -95,11 +97,11 @@ BayesRobustProbit = function(fixed, data, random, Robustness=TRUE, subset=NULL, 
 	if(length(arma.order)>0)
 		output = do.call("BayesProbitARMA", list(fixed=fixed, data=data, random=random, Robustness=Robustness, 
 			subset=subset, na.action=na.action, arma.order=arma.order, hyper.params = hyper.params, 
-			num.of.iter=num.of.iter))
+			num.of.iter=num.of.iter, Interactive = Interactive))
 	if(length(HS.model)>0)
 		output = do.call("BayesProbitHSD", list(fixed=fixed, data=data, random=random, Robustness=Robustness, 
 			subset=subset, na.action=na.action, HS.model=HS.model, hyper.params = hyper.params, 
-			num.of.iter=num.of.iter))
+			num.of.iter=num.of.iter, Interactive = Interactive))
 		#output = BayesProbitHSD(fixed, data, random, HS.model, subset=NULL, na.action, num.of.iter)
 
 	output$call$data = deparse(substitute(data))

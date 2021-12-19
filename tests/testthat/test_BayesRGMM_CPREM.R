@@ -4,8 +4,11 @@ context("A simulated study to demonstrate the function ``BayesCumulativeProbitHS
 
 
 test_that("A simulation study of CumulativeProbit", {
+
 library(BayesRGMM)
 rm(list=ls(all=TRUE))
+set.seed(1)
+Interactive = interactive()
 
 Fixed.Effs = c(-0.1, 0.1, -0.1) #c(-0.8, -0.3, 1.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
 P = length(Fixed.Effs) 
@@ -52,7 +55,7 @@ BCP.output = BayesCumulativeProbitHSD(
     fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
     data=CPREM.sim.data$sim.data, random = ~ 1, Robustness = TRUE, 
     subset = NULL, na.action='na.exclude', HS.model = ~IndTime1+IndTime2, 
-    hyper.params=NULL, num.of.iter=num.of.iter)
+    hyper.params=NULL, num.of.iter=num.of.iter, Interactive = Interactive)
 
 
 

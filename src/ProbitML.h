@@ -11,6 +11,7 @@
 //#include <math.h>
 
 #include <stdio.h>
+#include <unistd.h>   // for isatty()
 //#include <algorithm>
 //#include <assert.h>
 #include <cmath>
@@ -66,14 +67,14 @@ private:
     double acc_rate_delta; 
     
     bool updateystar, updateb, updatenu, updatebeta, updateSigma, updatedelta; //, updateomega;
-    bool Unconstraint, Robustness;
+    bool Unconstraint, Robustness, Interactive;
     
     double AIC, BIC, CIC, DIC, MPL, logL, RJ_R, ACC;// MSPE;
     //cube pred_y;
     //vec lower, upper;
     
 public:
-    ProbitMLModelSelection(int iNum_of_iterations, List list_Data, bool bRobustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara);
+    ProbitMLModelSelection(int iNum_of_iterations, List list_Data, bool bRobustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, bool bInteractive);
     
 
     void Update_nu(int iter);

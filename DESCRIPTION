@@ -1,9 +1,9 @@
 Package: BayesRGMM
 Type: Package
 Title: Bayesian Robust Generalized Mixed Models for Longitudinal Data
-Version: 2.0
+Version: 2.1
 Depends: R (>= 3.5.0)
-Date: 2021-11-27
+Date: 2021-12-14
 Authors@R: 
   c(person(given = "Kuo-Jung",
            family = "Lee",
@@ -33,7 +33,7 @@ LinkingTo: Rcpp, RcppArmadillo, RcppDist
 Suggests: testthat
 RoxygenNote: 7.1.1
 NeedsCompilation: yes
-Packaged: 2021-11-27 12:00:14 UTC; kuo-junglee
+Packaged: 2021-12-19 07:51:36 UTC; kuo-junglee
 Author: Kuo-Jung Lee [aut, cre] (<https://orcid.org/0000-0002-7388-4738>),
   Hsing-Ming Chang [ctb],
   Ray-Bing Chen [ctb],
@@ -41,4 +41,4 @@ Author: Kuo-Jung Lee [aut, cre] (<https://orcid.org/0000-0002-7388-4738>),
   Chanmin Kim [ctb]
 Maintainer: Kuo-Jung Lee <kuojunglee@ncku.edu.tw>
 Repository: CRAN
-Date/Publication: 2021-11-27 12:30:02 UTC
+Date/Publication: 2021-12-19 23:32:27 UTC

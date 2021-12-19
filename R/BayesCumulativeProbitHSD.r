@@ -27,7 +27,7 @@
 #' of time difference. 
 #' @param hyper.params specify the values in hyperparameters in priors. 
 #' @param num.of.iter an integer to specify the total number of iterations; default is 20000.      
-#'
+#' @param Interactive logical. If 'TRUE' when the program is being run interactively for progress bar and 'FALSE' otherwise.
 #' @return a list of posterior samples, parameters estimates, AIC, BIC, CIC, DIC, MPL, RJR, predicted values, 
 #' and the acceptance rates in MH are returned.
 #'
@@ -90,14 +90,14 @@
 #'     fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
 #'     data=CPREM.sim.data$sim.data, random = ~ 1, Robustness = TRUE, 
 #'     subset = NULL, na.action='na.exclude', HS.model = ~IndTime1+IndTime2, 
-#'     hyper.params=NULL, num.of.iter=num.of.iter)
+#'     hyper.params=NULL, num.of.iter=num.of.iter, Interactive=0)
 #' 
 #' BCP.Est.output = BayesRobustProbitSummary(BCP.output)
 #' }
 
 
 
-BayesCumulativeProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS.model, hyper.params, num.of.iter)
+BayesCumulativeProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS.model, hyper.params, num.of.iter, Interactive)
 {
 
 # process data: reponse, fixed and random effects matrices. 
@@ -433,7 +433,7 @@ BayesCumulativeProbitHSD = function(fixed, data, random, Robustness, subset, na.
  if(1){  
     start.time <- Sys.time()
 
-    PosteriorSamplesCP = CumulativeProbitMCMC(num.of.iter, Data, Robustness, InitialValues, HyperPara, UpdatePara, TuningPara)
+    PosteriorSamplesCP = CumulativeProbitMCMC(num.of.iter, Data, Robustness, InitialValues, HyperPara, UpdatePara, TuningPara, Interactive)
 
     end.time <- Sys.time()
 

@@ -14,7 +14,8 @@ BayesRobustProbit(
   arma.order = NULL,
   HS.model = NULL,
   hyper.params = NULL,
-  num.of.iter = 20000
+  num.of.iter = 20000,
+  Interactive = FALSE
 )
 }
 \arguments{
@@ -51,6 +52,8 @@ of time difference.}
 \item{hyper.params}{specify the values in hyperparameters in priors.}
 
 \item{num.of.iter}{an integer to specify the total number of iterations; default is 20000.}
+
+\item{Interactive}{logical. If 'TRUE' when the program is being run interactively for progress bar and 'FALSE' otherwise.}
 }
 \value{
 a list of posterior samples, parameters estimates, AIC, BIC, CIC, DIC, MPL, RJR, predicted values,
@@ -98,8 +101,9 @@ hyper.params = list(
         InvWishart.Lambda = diag(q) )
 
 HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
-	data=HSD.sim.data$sim.data, random = ~ 1, HS.model = ~IndTime1+IndTime2, subset = NULL, 
-	na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
+	data=HSD.sim.data$sim.data, random = ~ 1, Robustness=TRUE, HS.model = ~IndTime1+IndTime2, 
+ subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter, 
+ Interactive=0)
 } 
 }
 \references{

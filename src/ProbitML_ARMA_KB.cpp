@@ -21,7 +21,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 
-ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, bool b_Robustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order)
+ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iterations, List list_Data, bool b_Robustness, List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, vec vARMA_Order, bool b_Interactive)
 {
     Num_of_iterations = iNum_of_iterations;
     Data = list_Data;
@@ -30,6 +30,7 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
     UpdatePara = list_UpdatePara;
     TuningPara = list_TuningPara;
     Robustness = b_Robustness;
+    Interactive = b_Interactive;
     
     phi_tune = as<double>(TuningPara["TuningPhi"]);
     psi_tune = as<double>(TuningPara["TuningPsi"]);
@@ -130,6 +131,15 @@ ProbitMLModelSelectionARMAKB::ProbitMLModelSelectionARMAKB(int iNum_of_iteration
 
     acc_phi_rate = 0.;
     acc_psi_rate = 0.;
+    
+    AIC = 0.;
+    BIC = 0.;
+    CIC = 0.;
+    DIC = 0.;
+    MPL = 0.;
+    logL =0.;
+    RJ_R = 0.;
+    ACC = 0.; 
 }
 
 
@@ -773,7 +783,7 @@ SEXP ProbitMLModelSelectionARMAKB::MCMC_Procedure()
         iter++;
 
         
-        if(percent%2==0){
+        if(percent%2==0 && Interactive){
             Rcout << "\r" <<  "[" << std::string(percent / 2, (char)61) << std::string(100 / 2 - percent / 2, ' ') << "]" << "\t" << percent << "%";
             //Rcout << percent << "%" << " [Iteration " << iter + 1 << " of " << Num_of_iterations << "]";
             Rcout.flush();

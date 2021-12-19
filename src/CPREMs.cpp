@@ -20,7 +20,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 CumulativeProbitModel::CumulativeProbitModel(int iNum_of_iterations, List list_Data, bool b_Robustness,
-                                             List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara)
+                                             List list_InitialValues, List list_HyperPara, List list_UpdatePara, List list_TuningPara, bool b_Interactive)
 {
     Rcout<< "Start reading Data" << endl;
     Num_of_iterations = iNum_of_iterations;
@@ -30,6 +30,7 @@ CumulativeProbitModel::CumulativeProbitModel(int iNum_of_iterations, List list_D
     UpdatePara = list_UpdatePara;
     TuningPara = list_TuningPara;
     Robustness = b_Robustness;
+    Interactive = b_Interactive;
     
     updateystar = as<bool>(UpdatePara["UpdateYstar"]);
     updatealpha = as<bool>(UpdatePara["UpdateAlpha"]);
@@ -70,8 +71,17 @@ CumulativeProbitModel::CumulativeProbitModel(int iNum_of_iterations, List list_D
     Num_of_RanEffs = Z.n_cols;
     Num_of_covariates = X.n_cols;
  
+    
     //Rcout << "Num_of_Cats = " << Num_of_Cats << endl;
     Num_of_deltas = 0;
+    U.reset();
+    UU.reset();
+    delta_samples.reset();
+    delta_mean.reset();
+    sigma2_delta = 1.;
+    tuning_delta = 1.;
+    Idelta_diag.reset();
+    acc_rate_delta = 0;
     if(updatedelta){
         //Rcout << "updatedelta" << endl;
         U = as<cube>(Data["U"]);
@@ -152,6 +162,15 @@ CumulativeProbitModel::CumulativeProbitModel(int iNum_of_iterations, List list_D
     
     sigma2_alpha = as<double>(HyperPara["sigma2.alpha"]);;
     Ib_diag.eye(Num_of_RanEffs, Num_of_RanEffs);
+    
+    AIC = 0.;
+    BIC = 0.;
+    CIC = 0.;
+    DIC = 0.;
+    MPL = 0.;
+    logL =0.;
+    RJ_R = 0.;
+    ACC = 0.; 
     
 }
 
@@ -701,7 +720,7 @@ SEXP CumulativeProbitModel::MCMC_Procedure()
         iter++;
 
         
-        if(percent%2==0){
+        if(percent%2==0 && Interactive){
             Rcout << "\r" <<  "[" << std::string(percent / 2, (char)61) << std::string(100 / 2 - percent / 2, ' ') << "]" << "\t" << percent << "%";
             //Rcout << percent << "%" << " [Iteration " << iter + 1 << " of " << Num_of_iterations << "]";
             Rcout.flush();

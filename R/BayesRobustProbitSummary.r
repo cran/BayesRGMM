@@ -41,7 +41,8 @@
 #'
 #' HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", paste0("x", 1:P, collapse="+"))), 
 #' 	data=HSD.sim.data$sim.data, random = ~ 1, Robustness=TRUE, HS.model = ~IndTime1+IndTime2, 
-#'  subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter)
+#'  subset = NULL, na.action='na.exclude', hyper.params = hyper.params, num.of.iter = num.of.iter, 
+#'  Interactive =0)
 #' 
 #' BayesRobustProbitSummary(HSD.output)
 #' }

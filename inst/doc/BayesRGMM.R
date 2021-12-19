@@ -43,9 +43,9 @@ hyper.params = list(
 
 HSD.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", 
              paste0("x", 1:P, collapse="+"))), data=HSD.sim.data$sim.data, 
-             random = ~ 1, HS.model = ~IndTime1+IndTime2, subset = NULL, 
+             random = ~ 1, HS.model = ~IndTime1+IndTime2, Robustness=TRUE, subset = NULL, 
              na.action='na.exclude', hyper.params = hyper.params, 
-             num.of.iter = num.of.iter)
+             num.of.iter = num.of.iter, Interactive = FALSE)
 
 original = options(digits = 4)
 Model.Estimation = BayesRobustProbitSummary(HSD.output)
@@ -90,8 +90,8 @@ ARMA.sim.data = SimulatedDataGenerator(Num.of.Obs = N, Num.of.TimePoints = T,
 
 ARMA.output = BayesRobustProbit(fixed = as.formula(paste("y~-1+", 
   paste0("x", 1:P, collapse="+"))), data=ARMA.sim.data$sim.data, random = ~ 1, 
-  subset = NULL, na.action='na.exclude', arma.order = c(1, 1), 
-  num.of.iter = num.of.iter)
+  Robustness=TRUE, subset = NULL, na.action='na.exclude', arma.order = c(1, 1), 
+  num.of.iter = num.of.iter, Interactive = FALSE)
 
 original = options(digits = 4)
 
@@ -163,7 +163,7 @@ BCP.output = BayesCumulativeProbitHSD(
     fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
     data=CPREM.sim.data$sim.data, random = ~ 1, Robustness = TRUE, 
     subset = NULL, na.action='na.exclude', HS.model = ~IndTime1+IndTime2, 
-    hyper.params=NULL, num.of.iter=num.of.iter)
+    hyper.params=NULL, num.of.iter=num.of.iter, Interactive = FALSE)
 
 
 
