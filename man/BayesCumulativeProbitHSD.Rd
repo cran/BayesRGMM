@@ -29,22 +29,24 @@ It requires an ``integer'' variable named by \samp{id} to denote the identificat
 \item{random}{a one-sided linear formula object to describe random-effects with the terms separated by
 \samp{+} or \samp{*} operators on the right of a \samp{~} operator.}
 
-\item{Robustness}{logical. If 'TRUE' the distribution of random effects is assumed to be t-distribution;
-otherwise normal distribution.}
+\item{Robustness}{logical. If 'TRUE' the distribution of random effects is assumed to be \cr
+t-distribution; otherwise normal distribution.}
 
 \item{subset}{an optional expression indicating the subset of the rows of \samp{data} that should be used in the fit.
 This can be a logical vector, or a numeric vector indicating which observation numbers are to be included,
 or a character vector of the row names to be included.  All observations are included by default.}
 
 \item{na.action}{a function that indicates what should happen when the data contain NA’s.
-The default action (\samp{na.omit}, inherited from the \samp{factory fresh} value of
+The default action (\samp{na.omit}, inherited from the \samp{factory fresh} value of \cr
 \samp{getOption("na.action")}) strips any observations with any missing values in any variables.}
 
-\item{HS.model}{a specification of the correlation structure in HSD model: \code{HS.model = ~0} denotes
-independence, that is, \eqn{R_i} is an identity matrix,
-\code{HS.model = ~IndTime+}\eqn{\cdots}\code{+IndTimer} denotes AR(r) correlation structure,
-\code{HS.model = ~DiffTime1+}\eqn{\cdots}\code{+DiffTimer} denotes correlation structure related to \eqn{r}th order
-of time difference.}
+\item{HS.model}{a specification of the correlation structure in HSD model:
+\itemize{
+\item \code{HS.model = ~0} denotes independence, that is, \eqn{R_i} is an identity matrix,
+\item \code{HS.model = ~IndTime+}\eqn{\cdots}\code{+IndTimer} denotes AR(r) correlation structure,
+\item \code{HS.model = ~DiffTime1+}\eqn{\cdots}\code{+DiffTimer} denotes correlation structure related to \eqn{r}th order
+of time difference.
+}}
 
 \item{hyper.params}{specify the values in hyperparameters in priors.}
 
@@ -71,7 +73,7 @@ model estimation whenever the manuscript is accepted.
 library(BayesRGMM)
 rm(list=ls(all=TRUE))
 
-Fixed.Effs = c(-0.1, 0.1, -0.1) #c(-0.8, -0.3, 1.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
+Fixed.Effs = c(-0.1, 0.1, -0.1) #c(-0.8, -0.3, 1.8, -0.4) 
 P = length(Fixed.Effs) 
 q = 1 #number of random effects
 T = 7 #time points
@@ -100,11 +102,12 @@ DesignMat = x
 
 
 #MAR
-CPREM.sim.data = SimulatedDataGenerator.CumulativeProbit(Num.of.Obs = N, 
-    Num.of.TimePoints = T, Num.of.Cats = Num.of.Cats, Fixed.Effs = Fixed.Effs, 
-    Random.Effs = list(Sigma = 0.5*diag(1), df=3), DesignMat = DesignMat, 
-    Missing = list(Missing.Mechanism = 2, MissingRegCoefs=c(-0.7, -0.2, -0.1)), 
-    HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w))
+CPREM.sim.data = SimulatedDataGenerator.CumulativeProbit(
+ Num.of.Obs = N, Num.of.TimePoints = T, Num.of.Cats = Num.of.Cats, 
+ Fixed.Effs = Fixed.Effs, Random.Effs = list(Sigma = 0.5*diag(1), df=3), 
+ DesignMat = DesignMat, Missing = list(Missing.Mechanism = 2, 
+ MissingRegCoefs=c(-0.7, -0.2, -0.1)), 
+ HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w))
 
 print(table(CPREM.sim.data$sim.data$y))
 print(CPREM.sim.data$classes)

@@ -148,7 +148,9 @@ CumulativeProbitModel::CumulativeProbitModel(int iNum_of_iterations, List list_D
     //Rcout<< "Initial Values delta" << endl;
     alpha_samples.col(0) = as<vec>(InitialValues["alpha"]);
     
-    //Rcout << "alpha = " << alpha_samples.col(0) << endl;
+    
+    //Rcout << "Sigma_samples = " << size(Sigma_samples) << "\t" << Sigma_samples.slice(0) << endl;
+    
     
     Rcout<< "Read Hyperparameters." << endl;
     // Hyperparameters
@@ -230,6 +232,7 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
     double mu_tmp_alpha;
     
     if(updatealpha){
+        //Rcout << "Update alpha start" <<endl;
         alpha_samples(0, iter+1) = -datum::inf;
         alpha_samples(Num_of_Cats, iter+1) = datum::inf;
         //Rcout << "tuning_alpha = " << tuning_alpha << endl;
@@ -279,22 +282,29 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
     else
         alpha_samples.col(iter+1) = alpha_samples.col(iter);
     
-    
+    //Rcout << "Update alpha end" << endl;
+
+    //Rcout << "Update ystar start" << endl;
 
     for(int i=0; i<Num_of_obs; i++){
         tp = TimePointsAvailable(i);
 
-        
-        if(updatedelta)
+        //Rcout << "i = " << i << endl;
+
+        if(updatedelta){
+            //Rcout << "delta_samples.col(iter))  aaa = " << delta_samples.col(iter) << endl;
             Ri_tmp = Ri_Version2(i, tp, delta_samples.col(iter));
+        }
         else
             Ri_tmp = eye(tp, tp);
+        
+        //Rcout << "Ri_tmp aaa =" << Ri_tmp << endl;
 
         if(!Ri_tmp.is_sympd())
             Ri_tmp.eye();
         Ri_inv = inv_sympd(Ri_tmp);
         
-          
+        //Rcout << "Check 1" << endl;
         //lower.elem(find(Y(span(0, tp-1), i)>0)).zeros();
         //lower.elem(find(Y(span(0, tp-1), i)==0)).ones();
         //lower.elem(find(Y(span(0, tp-1), i)==0)) *= -datum::inf;
@@ -322,9 +332,11 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
         
         //Rcout << "upper = " << upper << endl;
         //Rcout << "lower = " << lower << endl;
-
+        //Rcout << "Check 2" << endl;
         if(updateystar){
-        
+            
+            //Rcout << "Update ystar" <<endl;
+            //Rcout << "Ri_tmp = " << Ri_tmp << endl;
             if(tp == 1)
                 Y_star_sample(0, i) = rtruncnorm(1, as_scalar(mu_tmp_ystar), as_scalar(Ri_tmp), as_scalar(lower),  as_scalar(upper))(0);
             else
@@ -335,14 +347,22 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
             Y_star_sample.col(i) = clamp(Y_star_sample.col(i), -10, 10);
 
         }
-    
+        //Rcout << "Check 3" << endl;
+        //Rcout << "Y_star_sample.col(i) = " << Y_star_sample.col(i) << endl;
         
+        //Rcout << "Sigma_samples.slice(iter) a = " << Sigma_samples.slice(iter) << endl;
         
         Sigma_tmp_b = Z_tmp.t()*Ri_inv*Z_tmp+nu_samples(i, iter)*Sigma_samples.slice(iter).i();
+        //Rcout << "Check 4" << endl;
+        //Rcout << "check 1 = " << endl;
+        
         if(!Sigma_tmp_b.is_sympd())
             Sigma_tmp_b.eye();
         else
             Sigma_tmp_b = inv_sympd(Sigma_tmp_b);
+        
+        //Rcout << "check 5  " << endl;
+        
         res_b = Y_star_sample(span(0, tp-1), i) - X_tmp*beta_samples.col(iter);
         mu_tmp_b = Sigma_tmp_b*Z_tmp.t()*Ri_inv*res_b;
         
@@ -350,13 +370,13 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
             Sigma_tmp_b.eye();
             mu_tmp_b.zeros();
         }
-        
+        //Rcout << "updateb start" << endl;
         if(updateb)
             b_samples.slice(iter+1).col(i) = mvnrnd(mu_tmp_b, Sigma_tmp_b);
         else
             b_samples.slice(iter+1).col(i) = b_samples.slice(iter).col(i);
-
- 
+        //Rcout << "updateb end" << endl;
+        //Rcout << "b_samples.slice(iter+1).col(i)  = " << b_samples.slice(iter+1).col(i)  << endl;
         Sigma_tmp_beta += (X_tmp.t()*Ri_inv*X_tmp);
                 
         res_beta = Y_star_sample(span(0, tp-1), i)- Z_tmp*b_samples.slice(iter+1).col(i);
@@ -369,6 +389,7 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
         
     }
             
+    //Rcout << "Update ystar end" << endl;
 
     Sigma_tmp_beta.diag() += 1./sigma2_beta;
     Sigma_tmp_beta = inv_sympd(Sigma_tmp_beta);
@@ -386,16 +407,23 @@ void CumulativeProbitModel::Update_ystar_b_beta_Sigma(int iter)
         Sigma_tmp.eye();
     }
 
+    //Rcout << "Sigma_samples.slice(iter) = " << Sigma_samples.slice(iter) << endl;
+    
+    //Rcout << "Sigma_tmp = " << Sigma_tmp << "\t" << "Num_of_obs + Vb " << Num_of_obs + Vb << endl;
+    
+    
     if(updateSigma)
         Sigma_samples.slice(iter+1) = iwishrnd( Sigma_tmp, (Num_of_obs + Vb));
     else
         Sigma_samples.slice(iter+1) = Sigma_samples.slice(iter);
+    
+    //Rcout << "Sigma_samples.slice(iter+1)" << Sigma_samples.slice(iter+1) << endl;
 }
 
 void CumulativeProbitModel::Update_nu(int iter)
 {
     //if(iter == 1)
-     //   Rcout << "Update nu" << endl;
+        //Rcout << "Update nu" << endl;
     double alpha_tmp, beta_tmp;
     vec b_vec;
     alpha_tmp = 0.5*(v_gamma + Num_of_RanEffs);
@@ -405,7 +433,7 @@ void CumulativeProbitModel::Update_nu(int iter)
         beta_tmp = 0.5*(as_scalar(b_vec.t()*Sigma_samples.slice(iter+1).i()*b_vec) + v_gamma);
         nu_samples(i, iter+1) = randg( 1, distr_param(alpha_tmp, 1./beta_tmp))(0);  //Rf_rgamma(alpha_tmp, 1./beta_tmp); //
     }
-    
+    //Rcout << "Update nu done" << endl;
 }
 
 
@@ -462,6 +490,7 @@ void CumulativeProbitModel::Update_delta(int iter)
             tuning_delta = 2*tuning_delta;
         
     }
+    //Rcout << "Update delta done" << endl;
 }
 
 void CumulativeProbitModel::ParameterEstimation()
@@ -506,7 +535,7 @@ void CumulativeProbitModel::ParameterEstimation()
 
     vec pit_vec(Num_of_Cats, fill::zeros), pit_vec_tmp(Num_of_Cats, fill::zeros);
         
-    double CPO_tmp, ESS=0, GP=0, ESS_GP_tmp, RJ1, RJ2;
+    double CPO_tmp, ESS_GP_tmp, RJ1, RJ2, ESS=0., GP=0.;
     logL = 0.;
     mat Djt(Num_of_Timepoints, Num_of_covariates, fill::zeros);
     mat Omega_I(Num_of_covariates, Num_of_covariates, fill::zeros), M_LZ(Num_of_covariates, Num_of_covariates, fill::zeros);
@@ -537,7 +566,7 @@ void CumulativeProbitModel::ParameterEstimation()
                 //Rcout << "mu_it = " << mu_it(t) << endl;
                 //Rcout << "alpha = " << alpha_mean.t() << endl;
                 //Rcout << "i = " << i << " t = " << t << endl;
-                if((mu_it(t) < alpha_mean[cat_ind+1]) & (mu_it(t) > alpha_mean[cat_ind]) ){
+                if((mu_it(t) < alpha_mean[cat_ind+1]) && (mu_it(t) > alpha_mean[cat_ind]) ){
                     //Rcout << "cat = " << cat_ind << endl;
                     ACC +=  1.*(Y(t, i)== cat_ind);
                     Y_pred(t, i) = cat_ind;
@@ -701,23 +730,33 @@ SEXP CumulativeProbitModel::MCMC_Procedure()
     int iter = 0;
 
     while(iter < Num_of_iterations-1){
+        
+        //Rcout << "iter = " << iter << endl;
+        
         Update_ystar_b_beta_Sigma(iter);
+        
+        //Rcout << "Update nu start" << endl;
         if(Robustness)
             Update_nu(iter);
         else
             nu_samples.col(iter+1) = nu_samples.col(iter);
+        //Rcout << "Update nu end" << endl;
+        
+        
         if(updatedelta)
             Update_delta(iter);
-
+        //Rcout << "Update delta end" << endl;
         
         //percent = (100 *iter) / (Num_of_iterations-2) ;
-        iter++;
+        //iter++;
         //if(iter%10000==0)
         //    Rcout << "iter = " << iter << endl;
         
         
         percent = (100 *iter) / (Num_of_iterations-2) ;
         iter++;
+        
+        
 
         
         if(percent%2==0 && Interactive){

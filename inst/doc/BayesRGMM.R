@@ -159,8 +159,7 @@ print(table(CPREM.sim.data$sim.data$y))
 print(CPREM.sim.data$classes)
 
 
-BCP.output = BayesCumulativeProbitHSD(
-    fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
+BCP.output = BayesRobustProbit(fixed = as.formula(paste("y~", paste0("x", 1:P, collapse="+"))), 
     data=CPREM.sim.data$sim.data, random = ~ 1, Robustness = TRUE, 
     subset = NULL, na.action='na.exclude', HS.model = ~IndTime1+IndTime2, 
     hyper.params=NULL, num.of.iter=num.of.iter, Interactive = FALSE)

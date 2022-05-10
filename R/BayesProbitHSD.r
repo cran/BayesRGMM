@@ -245,7 +245,7 @@ BayesProbitHSD = function(fixed, data, random, Robustness, subset, na.action, HS
 
     if(length(hyper.params)==0){
         sigma2.beta = 1
-        sigma2.delta = 1
+        sigma2.delta = rep(1, length(a))
         v.gamma = 5
         InvWishart.df = 5
         InvWishart.Lambda = diag(q)

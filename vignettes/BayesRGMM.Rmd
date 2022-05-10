@@ -1,7 +1,7 @@
 ---
 title: "BayesRGMM: Methodology and User Guide"
 author: "Kuo-Jung Lee at Deaprtment of Statistics and Institute of Data Science, NCKU, Taiwan"
-date: "2021 12 19"
+date: "2021 12 21"
 output: 
   bookdown::html_document2: default
   pdf_document:

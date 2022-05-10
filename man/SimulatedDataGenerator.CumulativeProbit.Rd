@@ -24,13 +24,15 @@ SimulatedDataGenerator.CumulativeProbit(
 
 \item{Fixed.Effs}{a vector of regression coefficients.}
 
-\item{Random.Effs}{a list of covariance matrix and the degree of freedom,  e.g., \code{list(Sigma = 0.5*diag(1), df=3)}.}
+\item{Random.Effs}{a list of covariance matrix and the degree of freedom, \cr
+e.g., \code{list(Sigma = 0.5*diag(1), df=3)}.}
 
 \item{DesignMat}{a design matrix.}
 
 \item{Missing}{a list of the missing mechanism of observations, 0: data is complete, 1: missing complete at random, 2: missing at random related to responses , and 3: 2: missing at random related to covariates and the corresponding regression coefficients (weights) on the previous observed values either responses or covariates, e.g.,  \code{Missing = list(Missing.Mechanism = 3, RegCoefs = c(0.4, 1.2, -2.1))}.}
 
-\item{HSD.DesignMat.para}{the list of parameters in HSD correlation structure, e.g., \code{HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w)}.}
+\item{HSD.DesignMat.para}{the list of parameters in HSD correlation structure, \cr
+e.g., \code{HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w)}.}
 }
 \value{
 a list containing the following components:
@@ -49,12 +51,12 @@ This function is used to simulate data for the cumulative probit mixed-effects m
 library(BayesRGMM)
 rm(list=ls(all=TRUE))
 
-Fixed.Effs = c(-0.1, 0.1, -0.1) #c(-0.8, -0.3, 1.8, -0.4) #c(-0.2,-0.8, 1.0, -1.2)
+Fixed.Effs = c(-0.1, 0.1, -0.1)  
 P = length(Fixed.Effs) 
 q = 1 #number of random effects
 T = 7 #time points
 N = 100 #number of subjects
-Num.of.Cats = 3 #in KBLEE simulation studies, please fix it. 
+Num.of.Cats = 3 #number of categories 
 num.of.iter = 1000 #number of iterations
 
 HSD.para = c(-0.9, -0.6) #the parameters in HSD model
@@ -62,7 +64,8 @@ a = length(HSD.para)
 w = array(runif(T*T*a), c(T, T, a)) #design matrix in HSD model
  
 for(time.diff in 1:a)
-w[, , time.diff] = 1*(as.matrix(dist(1:T, 1:T, method="manhattan")) ==time.diff)
+w[, , time.diff] = 1*(as.matrix(dist(1:T, 1:T, method="manhattan")) 
+==time.diff)
 
 
 x = array(0, c(T, P, N))
@@ -75,11 +78,12 @@ for(i in 1:N){
 DesignMat = x
 
 #MAR
-CPREM.sim.data = SimulatedDataGenerator.CumulativeProbit(Num.of.Obs = N, 
-    Num.of.TimePoints = T, Num.of.Cats = Num.of.Cats, Fixed.Effs = Fixed.Effs, 
-    Random.Effs = list(Sigma = 0.5*diag(1), df=3), DesignMat = DesignMat, 
-    Missing = list(Missing.Mechanism = 2, MissingRegCoefs=c(-0.7, -0.2, -0.1)), 
-    HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w))
+CPREM.sim.data = SimulatedDataGenerator.CumulativeProbit(
+ Num.of.Obs = N, Num.of.TimePoints = T, Num.of.Cats = Num.of.Cats, 
+ Fixed.Effs = Fixed.Effs, Random.Effs = list(Sigma = 0.5*diag(1), df=3), 
+ DesignMat = DesignMat, Missing = list(Missing.Mechanism = 2, 
+ MissingRegCoefs=c(-0.7, -0.2, -0.1)), 
+ HSD.DesignMat.para = list(HSD.para = HSD.para, DesignMat = w))
 
 
 print(table(CPREM.sim.data$sim.data$y))

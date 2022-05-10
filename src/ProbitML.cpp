@@ -374,7 +374,7 @@ void ProbitMLModelSelection::ParameterEstimation()
 
     rowvec X_tmp, Z_tmp, Ri_tmp;
 
-    double pit, CPO_tmp, ESS=0, GP=0, ESS_GP_tmp, RJ1, RJ2;
+    double pit, CPO_tmp, ESS_GP_tmp, RJ1, RJ2, ESS=0., GP=0.;
     logL = 0.;
     mat Djt(Num_of_Timepoints, Num_of_covariates, fill::zeros);
     mat Omega_I(Num_of_covariates, Num_of_covariates, fill::zeros), M_LZ(Num_of_covariates, Num_of_covariates, fill::zeros);

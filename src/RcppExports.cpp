@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // ProbitMCMCHSD
 RcppExport SEXP ProbitMCMCHSD(SEXP i_Num_of_iterations, SEXP list_Data, SEXP logic_Robust, SEXP list_InitialValues, SEXP list_HyperPara, SEXP list_UpdatePara, SEXP list_TuningPara, SEXP logic_Interactive);
 RcppExport SEXP _BayesRGMM_ProbitMCMCHSD(SEXP i_Num_of_iterationsSEXP, SEXP list_DataSEXP, SEXP logic_RobustSEXP, SEXP list_InitialValuesSEXP, SEXP list_HyperParaSEXP, SEXP list_UpdateParaSEXP, SEXP list_TuningParaSEXP, SEXP logic_InteractiveSEXP) {
